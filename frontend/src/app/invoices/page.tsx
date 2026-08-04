@@ -18,6 +18,7 @@ import {
   submitSignedTx,
   ContractCallError,
 } from "@/lib/contract";
+import { fetchInvoicesFromBackend } from "@/lib/backend";
 import { assetLabel, bpsToPercent, formatDaysUntilDue, formatXlm, shortenAddress, xlmToStroops } from "@/lib/format";
 import { WalletError } from "@/lib/wallet";
 
@@ -45,6 +46,7 @@ export default function InvoicesPage() {
   const [invoices, setInvoices] = useState<Invoice[] | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [total, setTotal] = useState<bigint | null>(null);
+  const [source, setSource] = useState<"indexer" | "chain" | null>(null);
 
   const [debtor, setDebtor] = useState("");
   const [amount, setAmount] = useState("1000");
@@ -56,10 +58,21 @@ export default function InvoicesPage() {
 
   const refresh = useCallback(async () => {
     try {
-      const [ids, totalCount] = await Promise.all([discoverInvoiceIds(), getTotalInvoices()]);
+      const totalCount = await getTotalInvoices();
+      setTotal(totalCount);
+
+      const fromBackend = await fetchInvoicesFromBackend();
+      if (fromBackend) {
+        setInvoices(fromBackend.sort((a, b) => (a.id < b.id ? 1 : -1)));
+        setSource("indexer");
+        return;
+      }
+
+      // Backend unset or unreachable — fall back to on-chain discovery.
+      const ids = await discoverInvoiceIds();
       const loaded = await Promise.all(ids.map((id) => getInvoice(id)));
       setInvoices(loaded.sort((a, b) => (a.id < b.id ? 1 : -1)));
-      setTotal(totalCount);
+      setSource("chain");
     } catch (err) {
       setLoadError(err instanceof Error ? err.message : "Could not load invoices.");
     }
@@ -205,7 +218,14 @@ export default function InvoicesPage() {
           </div>
 
           <div className="mt-16">
-            <h2 className="eyebrow">Recent invoices</h2>
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="eyebrow">Recent invoices</h2>
+              {source && (
+                <span className="text-xs text-muted">
+                  {source === "indexer" ? "via indexer" : "via on-chain event log"}
+                </span>
+              )}
+            </div>
             <div className="mt-4">
               {loadError ? (
                 <Card className="p-6 text-sm text-accent-rose">{loadError}</Card>

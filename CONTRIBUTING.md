@@ -4,11 +4,13 @@
 
 ```
 contracts/    Soroban contract (Rust) — runway-invoice
+backend/      Read-only indexer/API — never holds keys, never signs
 frontend/     Next.js web app — landing page + the app itself
 ```
 
-There is no backend. The frontend talks to the deployed contract directly
-over Stellar RPC.
+Every write happens client-side, wallet-signed, directly against the
+contract — the backend is a read-side convenience layer, not something in
+the transaction path. See [backend/README.md](./backend/README.md).
 
 ## Getting set up
 
@@ -18,6 +20,12 @@ cd runway
 
 cd contracts
 cargo test --workspace
+
+cd ../backend
+npm install
+cp .env.example .env
+# fill in RUNWAY_CONTRACT_ID with a deployed contract id
+npm run dev
 
 cd ../frontend
 npm install
@@ -30,6 +38,12 @@ npm run dev
 
 ```bash
 cd contracts && cargo test --workspace
+
+cd ../backend
+npm run lint
+npm run typecheck
+npm run test
+npm run build
 
 cd ../frontend
 npm run lint

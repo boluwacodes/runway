@@ -36,10 +36,10 @@ a first-time, unverified debtor will usually want that lower number.
 
 ```
 contracts/runway-invoice/   Soroban contract — create/fund/pay/cancel
-frontend/                   Next.js app, talks to the contract directly
+backend/                    read-only indexer/API, see "the backend" below
+frontend/                   Next.js app — talks to the contract directly
+                             for every write, the backend only for browsing
 ```
-
-No `backend/`. That's not an omission — see "why no backend" below.
 
 ## Run it
 
@@ -48,13 +48,18 @@ git clone https://github.com/boluwacodes/runway.git && cd runway
 
 cd contracts && cargo test --workspace && stellar contract build
 
+cd ../backend && npm install
+cp .env.example .env   # fill in RUNWAY_CONTRACT_ID
+npm run dev             # :3030
+
 cd ../frontend && npm install
 cp .env.example .env.local   # fill in NEXT_PUBLIC_RUNWAY_CONTRACT_ID
-npm run dev
+npm run dev              # :3000
 ```
 
-`:3000`. You'll need [Freighter](https://www.freighter.app/) on Stellar
-testnet, funded via [the Laboratory](https://laboratory.stellar.org/#account-creator?network=test).
+The backend is optional — the frontend runs fine without it, just slower
+to list invoices (see below). You'll need [Freighter](https://www.freighter.app/)
+on Stellar testnet, funded via [the Laboratory](https://laboratory.stellar.org/#account-creator?network=test).
 
 ## Contract interface
 
@@ -78,15 +83,23 @@ date; a late payment settles like any other, it just increments
 15 tests in `contracts/runway-invoice/src/test.rs` — funded and
 unfunded payment paths, on-time vs. late, every rejection case.
 
-## Why no backend
+## The backend (and why it can't touch your money)
 
-Every write in `frontend/src/lib/contract.ts` builds an *unsigned*
-transaction; your wallet signs it; the frontend submits it. Reads
-simulate against a throwaway account — no funds needed to look something
-up. "What invoices exist" is answered by scanning the contract's own
-`(invoice, created)` event log, not a database this project maintains.
-There's nothing running that could go down, get hacked, or lie about
-what it's returning.
+Every write still happens the same way regardless of whether the backend
+is running: `frontend/src/lib/contract.ts` builds an *unsigned*
+transaction, your wallet signs it, the frontend submits it. The backend is
+never in that path — it holds no key, and nothing in `backend/src/` ever
+constructs or signs a transaction.
+
+What it does do: poll `total_invoices()` and refetch every invoice's
+current state directly from contract storage, on a loop, into SQLite.
+That's what `GET /invoices` on the frontend's browse list actually reads
+— it's just a faster mirror of public on-chain state, not a new trust
+requirement. If it's down, `frontend/src/lib/contract.ts` falls back to
+scanning the contract's own event log directly, the same way it did before
+the backend existed. Either way, the detail page that actually gates
+fund/pay/cancel reads live from the contract, backend or not. See
+[backend/README.md](./backend/README.md) for the reasoning in full.
 
 ## What Stellar buys you
 
