@@ -9,11 +9,11 @@ export const metadata: Metadata = {
 };
 
 const COMPARISON = [
-  { row: "Who evaluates the invoice", factor: "The factoring company, over days", runway: "Any funder, in one transaction" },
-  { row: "Who holds the money in between", factor: "The factoring company's account", runway: "Nobody — direct wallet-to-wallet transfers" },
-  { row: "Minimum invoice size", factor: "Often set high to make the paperwork worth it", runway: "None — a single small invoice is as viable as a portfolio" },
-  { row: "Debtor payment history", factor: "The factor's private records, if they keep any", runway: "A public, on-chain late-payment count anyone can check" },
-  { row: "Settlement time once approved", factor: "1-5 business days to wire the advance", runway: "One Stellar transaction, seconds" },
+  { key: "evaluated_by", factor: "a factoring company, over days", runway: "any funder, in one transaction" },
+  { key: "funds_held_by", factor: "the factor's account", runway: "nobody — direct wallet transfers" },
+  { key: "min_invoice_size", factor: "set high, paperwork isn't worth it below that", runway: "none" },
+  { key: "debtor_history", factor: "the factor's private records, if kept", runway: "public, on-chain" },
+  { key: "settlement_time", factor: "1-5 business days", runway: "~5 seconds" },
 ];
 
 export default function AboutPage() {
@@ -21,79 +21,66 @@ export default function AboutPage() {
     <>
       <Navbar />
       <main className="flex-1">
-        <section className="ledger-lines border-b border-border">
-          <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
-            <p className="eyebrow">About Runway</p>
-            <h1 className="font-display mt-3 max-w-2xl text-4xl font-extrabold tracking-tight sm:text-5xl">
-              Invoice factoring, minus the factoring company.
+        <section className="term-grid border-b border-border">
+          <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 sm:py-20">
+            <p className="eyebrow">about</p>
+            <h1 className="mt-3 max-w-2xl text-4xl font-bold tracking-tight sm:text-5xl">
+              factoring.exe, minus the factor
             </h1>
             <p className="mt-5 max-w-xl text-lg leading-relaxed text-muted">
-              Businesses have been advancing each other cash against unpaid invoices for as long as invoices have
-              existed. Runway doesn&apos;t replace that idea — it removes the intermediary sitting in the middle of
-              it, holding funds, setting minimums, and taking days to move money that a contract can move in
-              seconds.
+              Businesses have advanced each other cash against unpaid invoices for as long as invoices have existed.
+              Runway doesn&apos;t reinvent that — it just removes the company that used to sit in the middle,
+              holding funds, setting minimums, and taking days to wire money a contract moves in seconds.
             </p>
           </div>
         </section>
 
         <section className="border-b border-border">
-          <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
+          <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 sm:py-20">
             <div className="max-w-xl">
-              <p className="eyebrow">What changes</p>
-              <h2 className="font-display mt-3 text-3xl font-extrabold tracking-tight">Same idea, no middleman</h2>
+              <p className="eyebrow">diff</p>
+              <h2 className="mt-3 text-3xl font-bold tracking-tight">factor vs. runway</h2>
             </div>
 
-            <div className="mt-10 overflow-x-auto">
-              <table className="w-full min-w-[640px] border-collapse text-left text-sm">
-                <thead>
-                  <tr className="border-b-2 border-border-strong">
-                    <th className="py-3 pr-4 font-medium text-muted"> </th>
-                    <th className="py-3 pr-4 font-medium text-muted">Traditional factoring</th>
-                    <th className="py-3 font-medium accent-text">Runway</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {COMPARISON.map((row) => (
-                    <tr key={row.row} className="border-b border-border last:border-0">
-                      <td className="py-3 pr-4 font-medium text-foreground">{row.row}</td>
-                      <td className="py-3 pr-4 text-muted">{row.factor}</td>
-                      <td className="py-3 text-foreground">{row.runway}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="term-panel mt-10 divide-y divide-border overflow-x-auto">
+              {COMPARISON.map((row) => (
+                <div key={row.key} className="grid min-w-[560px] grid-cols-[160px_1fr_1fr] gap-4 px-5 py-4 text-sm sm:px-6">
+                  <span className="text-muted">{row.key}</span>
+                  <span className="text-muted line-through decoration-1">{row.factor}</span>
+                  <span className="accent-text">{row.runway}</span>
+                </div>
+              ))}
             </div>
           </div>
         </section>
 
         <section>
-          <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
+          <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 sm:py-20">
             <div className="max-w-xl">
-              <p className="eyebrow">Where this is today</p>
-              <h2 className="font-display mt-3 text-3xl font-extrabold tracking-tight">Honest status</h2>
+              <p className="eyebrow">status</p>
+              <h2 className="mt-3 text-3xl font-bold tracking-tight">what&apos;s actually real</h2>
             </div>
             <div className="mt-8 max-w-2xl space-y-4 text-sm leading-relaxed text-muted">
               <p>
-                Runway runs on Stellar&apos;s public testnet today, not mainnet — free to use while that&apos;s
-                true. The contract is real and tested; the frontend talks to it directly, with no backend in
-                between.
+                Testnet, not mainnet — free while that&apos;s true. The contract is real, tested, and deployed; the
+                frontend calls it directly. There&apos;s no backend to trust in between.
               </p>
               <p>
-                Invoices currently settle in native XLM. Stablecoin-denominated invoices (any Stellar Asset Contract
-                token) and a mainnet deployment are next. See{" "}
+                Invoices settle in native XLM today. Stablecoins and mainnet are the next two things on the list —
+                see{" "}
                 <Link href="https://github.com/boluwacodes/runway" className="accent-text hover:underline">
                   the README
-                </Link>{" "}
-                for the full roadmap.
+                </Link>
+                .
               </p>
               <p>
-                Runway can&apos;t and doesn&apos;t claim to force a debtor to pay — no on-chain mechanism can compel
-                an off-chain business relationship. What it guarantees is that whenever payment does land, it
-                reaches whoever is actually owed it. See{" "}
+                One thing Runway will never claim: that it can force a debtor to pay. It can&apos;t — no contract
+                can compel an off-chain relationship to resolve. What it guarantees is narrower and real: whatever
+                payment does land gets routed to whoever is actually owed it.{" "}
                 <a href="https://github.com/boluwacodes/runway" className="accent-text hover:underline">
-                  the source
+                  Read the source
                 </a>{" "}
-                — contract, tests, and frontend are all public.
+                and check for yourself.
               </p>
             </div>
           </div>

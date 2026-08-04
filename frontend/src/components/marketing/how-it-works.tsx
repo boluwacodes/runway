@@ -1,60 +1,66 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
 
-const STEPS = [
+const SESSION = [
   {
-    status: "Open",
-    title: "Register the invoice",
-    body: "Set the amount, who owes it, when it's due, and how much you're willing to give up for early payment. Nothing moves yet.",
+    prompt: "runway create-invoice --debtor GABC..XYZ --amount 4800 --advance 95%",
+    output: "invoice #142 registered · status: open",
+    note: "Set the amount, who owes it, when it's due, and the advance you'll accept for getting paid today.",
   },
   {
-    status: "Funded",
-    title: "A funder advances you cash",
-    body: "Any funder can back your invoice — they send the advance straight to your wallet, and the contract records who's owed the full amount when it's collected.",
+    prompt: "runway fund-invoice 142",
+    output: "4,560.00 XLM sent to payee · status: funded",
+    note: "Any funder can back it — the advance lands in your wallet immediately, no underwriting call.",
   },
   {
-    status: "Paid",
-    title: "Your customer settles, on-chain",
-    body: "Whenever your customer actually pays, the contract routes it automatically — to the funder if the invoice was financed, straight to you if it wasn't.",
+    prompt: "runway pay-invoice 142",
+    output: "4,800.00 XLM settled to funder · status: paid",
+    note: "Whenever the debtor actually pays, the contract routes it — to the funder if financed, to you otherwise.",
   },
 ];
 
 export function HowItWorks() {
   return (
-    <section id="how-it-works" className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
+    <section id="how-it-works" className="mx-auto max-w-4xl px-4 py-24 sm:px-6">
       <div className="max-w-xl">
-        <p className="eyebrow">How it works</p>
-        <h2 className="font-display mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">
-          Three states, start to finish
-        </h2>
-        <p className="mt-4 text-muted">The same lifecycle every invoice goes through — just enforced by a contract instead of a spreadsheet.</p>
+        <p className="eyebrow">how it works</p>
+        <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">three commands, start to finish</h2>
       </div>
 
-      <div className="mt-14 flex flex-col gap-4 md:flex-row md:items-stretch md:gap-0">
-        {STEPS.map((step, index) => (
-          <motion.div
-            key={step.status}
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.5, delay: index * 0.12 }}
-            className="ledger-card relative flex-1 p-6"
-          >
-            <span className="eyebrow border border-accent px-2 py-1 !text-accent">{step.status}</span>
-            <h3 className="mt-4 text-lg font-semibold text-foreground">{step.title}</h3>
-            <p className="mt-2 text-sm leading-relaxed text-muted">{step.body}</p>
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-80px" }}
+        transition={{ duration: 0.5 }}
+        className="term-panel mt-12 overflow-hidden"
+      >
+        <div className="flex items-center gap-1.5 border-b border-border-strong bg-card px-4 py-3">
+          <span className="h-2.5 w-2.5 rounded-full bg-accent-rose" />
+          <span className="h-2.5 w-2.5 rounded-full bg-accent-gold" />
+          <span className="h-2.5 w-2.5 rounded-full bg-accent" />
+          <span className="ml-2 text-xs text-muted">invoice-142.sh</span>
+        </div>
 
-            {index < STEPS.length - 1 && (
-              <ArrowRight
-                size={18}
-                className="absolute -right-2.5 top-1/2 z-10 hidden -translate-y-1/2 text-border-strong md:block"
-              />
-            )}
-          </motion.div>
-        ))}
-      </div>
+        <div className="divide-y divide-border">
+          {SESSION.map((step, index) => (
+            <motion.div
+              key={step.prompt}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true, margin: "-80px" }}
+              transition={{ duration: 0.4, delay: index * 0.15 }}
+              className="p-5 sm:p-6"
+            >
+              <p className="text-sm">
+                <span className="accent-text">$</span> <span className="text-foreground">{step.prompt}</span>
+              </p>
+              <p className="mt-1.5 pl-4 text-sm text-muted">{step.output}</p>
+              <p className="mt-3 max-w-lg text-sm leading-relaxed text-muted">{step.note}</p>
+            </motion.div>
+          ))}
+        </div>
+      </motion.div>
     </section>
   );
 }

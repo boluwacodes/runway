@@ -5,31 +5,35 @@ import { motion } from "framer-motion";
 
 export function Cta() {
   return (
-    <section className="border-t border-border bg-foreground text-background">
-      <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
-        <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-          <p className="eyebrow !text-accent">Get started</p>
-          <h2 className="font-display mt-3 max-w-xl text-3xl font-extrabold tracking-tight sm:text-4xl">
-            Free while Runway is on testnet
+    <section className="border-t border-border">
+      <div className="mx-auto max-w-4xl px-4 py-24 sm:px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="term-panel p-8 text-center sm:p-12"
+        >
+          <p className="eyebrow">free while on testnet</p>
+          <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
+            $ connect-wallet <span className="blink-cursor" />
           </h2>
-          <p className="mt-4 max-w-xl text-background/60">
-            Connect a Stellar wallet, fund it with testnet XLM, and register or fund your first invoice — no signup,
-            no account, no email.
+          <p className="mx-auto mt-4 max-w-md text-muted">
+            No signup, no account, no email — just a Stellar wallet funded with testnet XLM.
           </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <Link
               href="/invoices"
-              className="border border-background bg-background px-6 py-3 text-center text-sm font-medium text-foreground hover:opacity-85"
+              className="border border-accent bg-accent px-6 py-3 text-center text-sm font-medium text-accent-foreground hover:opacity-90"
             >
-              Launch the app
+              launch the app
             </Link>
             <a
               href="https://laboratory.stellar.org/#account-creator?network=test"
               target="_blank"
               rel="noreferrer"
-              className="border border-background/30 px-6 py-3 text-center text-sm font-medium text-background hover:bg-background/10"
+              className="border border-border-strong px-6 py-3 text-center text-sm font-medium text-foreground hover:bg-card"
             >
-              Fund a testnet wallet
+              fund a testnet wallet
             </a>
           </div>
         </motion.div>

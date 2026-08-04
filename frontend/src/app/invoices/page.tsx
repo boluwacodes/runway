@@ -114,8 +114,8 @@ export default function InvoicesPage() {
         <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="eyebrow">Invoices</p>
-              <h1 className="font-display mt-2 text-3xl font-extrabold tracking-tight">Register or fund an invoice</h1>
+              <p className="eyebrow">invoices</p>
+              <h1 className="mt-2 text-3xl font-bold tracking-tight">register or fund an invoice</h1>
             </div>
             {total !== null && <Badge tone="gold">{total.toString()} invoices registered on testnet</Badge>}
           </div>

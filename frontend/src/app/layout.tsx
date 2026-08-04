@@ -1,26 +1,16 @@
 import type { Metadata } from "next";
-import { Manrope, Space_Mono } from "next/font/google";
+import { Fira_Code } from "next/font/google";
 import { Toaster } from "sonner";
 import { WalletProvider } from "@/context/wallet-context";
 import "./globals.css";
 
-const manrope = Manrope({
+// One monospace family for everything — body, headlines, and labels alike.
+// Neither other Stellar project in this account uses mono for display type;
+// here it's the whole typographic identity, not just a label accent.
+const firaCode = Fira_Code({
   variable: "--font-body",
   subsets: ["latin"],
-  display: "swap",
-});
-
-const displayFont = Manrope({
-  variable: "--font-display",
-  subsets: ["latin"],
-  weight: ["700", "800"],
-  display: "swap",
-});
-
-const spaceMono = Space_Mono({
-  variable: "--font-label",
-  subsets: ["latin"],
-  weight: ["400", "700"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
@@ -60,10 +50,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html
-      lang="en"
-      className={`${manrope.variable} ${displayFont.variable} ${spaceMono.variable} h-full antialiased`}
-    >
+    <html lang="en" className={`${firaCode.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col overflow-x-hidden bg-background text-foreground">
         <WalletProvider>{children}</WalletProvider>
         <Toaster

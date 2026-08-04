@@ -4,28 +4,24 @@ import { Disclosure } from "@/components/ui";
 
 const FAQS = [
   {
-    q: "What if my customer never pays the invoice at all?",
-    a: "Runway can't force an off-chain business relationship to resolve — no on-chain mechanism can compel a debtor to pay. What it guarantees is that whenever payment does land, it's routed correctly: to the funder if financed, to you otherwise. A funder evaluates that risk the same way a real factoring company would, by checking the debtor's on-chain payment history first.",
+    q: "what if the debtor never pays?",
+    a: "No on-chain mechanism can force an off-chain business relationship to resolve. A funder evaluates that risk the same way a real factoring company would — by checking the debtor's on-chain payment history before backing the invoice.",
   },
   {
-    q: "What happens if my customer pays late?",
-    a: "The invoice still settles normally — a late payment isn't blocked or penalized, it's simply recorded against the debtor's on-chain history (late_payment_count), visible to anyone deciding whether to fund that debtor's invoices in the future.",
+    q: "what happens on a late payment?",
+    a: "It still settles normally. Nothing is blocked or penalized — the payment is simply logged against the debtor's on-chain record (late_payment_count), visible to anyone deciding whether to fund that debtor's invoices next.",
   },
   {
-    q: "How is the funder's return determined?",
-    a: "You set it when you create the invoice: the advance percentage (e.g. 95% of face value) you're willing to accept today. The funder's profit is the gap between what they advance and the full face value they collect when your customer pays — the same economics as real-world invoice factoring, just transparent and fixed upfront.",
+    q: "how is the funder's return set?",
+    a: "You set it at creation: the advance percentage you'll accept for getting paid today. The funder's profit is the gap between what they advance and the full face value they collect — fixed and visible upfront, not negotiated after the fact.",
   },
   {
-    q: "Can I cancel an invoice?",
-    a: "Yes, as long as no funder has advanced money against it yet. Once it's funded, cancellation is disabled — that would strand the funder's capital, which they already sent to you.",
+    q: "can an invoice be cancelled?",
+    a: "Yes, as long as no funder has advanced money against it. Once funded, cancellation is disabled — that would strand capital the funder already sent.",
   },
   {
-    q: "What currency do invoices use?",
-    a: "Invoices default to Stellar's native asset (XLM), so financing one doesn't require setting up a separate token trustline first. An invoice can be created against any Stellar Asset Contract token, including stablecoins.",
-  },
-  {
-    q: "Is this live on mainnet?",
-    a: "Not yet — Runway runs on Stellar's public testnet today, with real contract logic and tests, while the model gets validated. Mainnet is the next step.",
+    q: "is this live on mainnet?",
+    a: "Not yet. Runway runs on Stellar's public testnet today, with real contract logic and tests, while the model gets validated. Mainnet is next.",
   },
 ];
 
@@ -34,8 +30,8 @@ export function Faq() {
     <section id="faq" className="border-t border-border">
       <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
         <div className="max-w-xl">
-          <p className="eyebrow">Questions</p>
-          <h2 className="font-display mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">Common questions</h2>
+          <p className="eyebrow">faq</p>
+          <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">common questions</h2>
         </div>
 
         <div className="mt-10 max-w-3xl">

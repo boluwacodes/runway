@@ -14,7 +14,7 @@ export function Footer() {
       <div className="mx-auto flex max-w-6xl flex-col items-center gap-6 px-4 py-14 text-center sm:px-6">
         <Link href="/" className="flex items-center gap-2">
           <LogoMark size={26} />
-          <span className="font-display text-lg">Runway</span>
+          <span className="text-lg">Runway</span>
         </Link>
 
         <p className="max-w-sm text-sm text-muted">

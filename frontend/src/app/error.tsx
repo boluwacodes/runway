@@ -15,10 +15,10 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
   return (
     <>
       <Navbar />
-      <main className="ledger-lines flex flex-1 flex-col items-center justify-center px-4 py-24 text-center">
+      <main className="term-grid flex flex-1 flex-col items-center justify-center px-4 py-24 text-center">
         <LogoMark size={40} />
         <p className="eyebrow mt-6">Something went wrong</p>
-        <h1 className="font-display mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">
+        <h1 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">
           That didn&apos;t work.
         </h1>
         <p className="mt-3 max-w-sm text-sm text-muted">

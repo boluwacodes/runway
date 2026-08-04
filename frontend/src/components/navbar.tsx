@@ -54,11 +54,11 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b-2 border-border-strong bg-background/95 backdrop-blur">
-      <div className="perforation" />
+      <div className="" />
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
         <Link href="/" className="flex items-center gap-2.5 font-semibold tracking-tight">
           <LogoMark size={26} />
-          <span className="font-display text-[16px] text-foreground">Runway</span>
+          <span className="text-[16px] text-foreground">Runway</span>
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
@@ -91,7 +91,7 @@ export function Navbar() {
                   initial={{ opacity: 0, y: -4 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.15 }}
-                  className="ledger-card absolute right-0 mt-2 w-52 overflow-hidden py-1"
+                  className="term-panel absolute right-0 mt-2 w-52 overflow-hidden py-1"
                 >
                   <p className="truncate border-b border-border px-3.5 py-2.5 text-xs text-muted">{address}</p>
                   <button
