@@ -1,119 +1,102 @@
-# Runway — Invoice Financing on Stellar
-
-**Get paid on your invoices today. Not in 60 days.**
-
-An unpaid invoice is cash a business has already earned but can't spend
-yet. Runway lets a funder advance most of an invoice's value right now —
-the business gets paid immediately, the funder collects the full amount
-once the debtor actually pays. Same economics as real-world invoice
-factoring, settled trustlessly by a Soroban contract instead of a
-factoring company's back office.
-
-- **Network:** Stellar / Soroban, testnet
-- **License:** MIT
-
-## The problem
-
-Small businesses and freelancers do the work, send the invoice, and then
-wait — 30, 60, sometimes 90 days — while rent, payroll, and suppliers
-don't wait with them. Traditional invoice factoring exists to bridge that
-gap, but it's slow (days to get an advance wired), opaque (a factoring
-company's private underwriting), and skewed toward businesses large enough
-to make the paperwork worth a factor's time.
-
-## How it works
-
-1. **Register an invoice.** Set the face value, who owes it (the debtor),
-   when it's due, and the advance percentage you're willing to accept for
-   getting paid today (e.g. 95%).
-2. **A funder advances you cash.** Any funder can back the invoice — the
-   advance goes straight to your wallet, and the contract records who's
-   owed the full amount when it's eventually collected.
-3. **The debtor settles, on-chain.** Whenever they actually pay — early,
-   on time, or late — the contract routes it automatically: to the funder
-   if the invoice was financed, straight to the payee otherwise. A late
-   payment still settles normally; it's recorded against the debtor
-   rather than blocked, since nothing on-chain can force an off-chain
-   payment to arrive on schedule.
-
-## Why this belongs on Stellar
-
-- **Fees in fractions of a cent.** Financing a single $500 invoice
-  shouldn't cost a meaningful chunk of the funder's margin in network
-  fees — bundling into a portfolio to make it worthwhile shouldn't be
-  necessary.
-- **The contract holds nothing between transfers.** Every advance and
-  every settlement is a direct wallet-to-wallet transfer — payee, funder,
-  debtor. Runway the app never takes custody of funds at any point.
-- **No trustline setup for the common case.** Invoices default to
-  Stellar's native asset, so financing one doesn't require the debtor or
-  funder to set up a new token trustline first.
-- **A public, permissionless payment history.** Every advance and
-  settlement is a Stellar event log entry — a funder can independently
-  check a debtor's on-time payment history before deciding to back their
-  invoice.
-
-## Architecture
-
-There is deliberately no backend. The frontend talks to the deployed
-Soroban contract directly over Stellar RPC, and a connected wallet (e.g.
-[Freighter](https://www.freighter.app/)) signs every state-changing call.
-Invoice discovery — "what invoices exist?" — is read from the contract's
-own on-chain event log rather than an indexer database.
+# Runway
 
 ```
-contracts/     Soroban contract (Rust) — invoice registration, funding,
-                payment, and cancellation, all authorized via
-                require_auth().
-frontend/       Next.js web app — landing page and the app itself
-                (register, fund, pay, cancel). Talks to the contract
-                directly; no backend.
+$ runway create-invoice --debtor GABC..XYZ --amount 4800 --advance 95%
+invoice #142 registered · status: open
+
+$ runway fund-invoice 142
+4,560.00 XLM sent to payee · status: funded
+
+$ runway pay-invoice 142
+4,800.00 XLM settled to funder · status: paid
 ```
 
-## Quick start
+That's the whole product. A funder advances 95% of an invoice's face
+value the moment it's registered; the debtor settles the full amount
+on-chain whenever they actually pay; the contract routes it to whichever
+of them is owed it. No factoring company sitting in between, holding
+funds, setting a minimum invoice size, or taking days to wire an advance.
+
+`network: Stellar / Soroban, testnet` · `license: MIT`
+
+## The math on one invoice
+
+```
+face_value       4,800.00 XLM
+advance_bps      9500  (95%)
+advance_amount   4,560.00 XLM  → paid to the payee immediately on fund_invoice
+funder_profit      240.00 XLM  → the spread, collected in full on pay_invoice
+```
+
+Set `advance_bps` however you want at creation — 95% above is an example,
+not a default. Lower it and the payee gets less upfront; a funder backing
+a first-time, unverified debtor will usually want that lower number.
+
+## Repo map
+
+```
+contracts/runway-invoice/   Soroban contract — create/fund/pay/cancel
+frontend/                   Next.js app, talks to the contract directly
+```
+
+No `backend/`. That's not an omission — see "why no backend" below.
+
+## Run it
 
 ```bash
-git clone https://github.com/boluwacodes/runway.git
-cd runway
+git clone https://github.com/boluwacodes/runway.git && cd runway
 
-# Smart contract
-cd contracts
-cargo test --workspace
-stellar contract build
+cd contracts && cargo test --workspace && stellar contract build
 
-# Frontend
-cd ../frontend
-npm install
-cp .env.example .env.local
-# fill in NEXT_PUBLIC_RUNWAY_CONTRACT_ID with your deployed contract id
+cd ../frontend && npm install
+cp .env.example .env.local   # fill in NEXT_PUBLIC_RUNWAY_CONTRACT_ID
 npm run dev
 ```
 
-The app runs on `:3000`. Install [Freighter](https://www.freighter.app/),
-switch it to Stellar testnet, and fund a testnet account via
-[the Laboratory](https://laboratory.stellar.org/#account-creator?network=test)
-before registering, funding, or paying an invoice.
+`:3000`. You'll need [Freighter](https://www.freighter.app/) on Stellar
+testnet, funded via [the Laboratory](https://laboratory.stellar.org/#account-creator?network=test).
 
-## The contract
+## Contract interface
 
-`contracts/runway-invoice` — core functions:
+```
+create_invoice(payee, debtor, token, face_value, advance_bps, due_date) -> invoice_id
+fund_invoice(invoice_id, funder)
+pay_invoice(invoice_id, debtor)
+cancel_invoice(invoice_id, caller)
 
-| Function | What it does |
-|---|---|
-| `create_invoice` | Registers an invoice; only the payee can register one on their own behalf. |
-| `fund_invoice` | A funder advances `face_value * advance_bps / 10000` to the payee immediately. |
-| `pay_invoice` | The debtor settles in full — routes to the funder if financed, to the payee otherwise. Callable any time, including after the due date. |
-| `cancel_invoice` | The payee cancels an invoice that was never funded. Disabled once a funder has advanced money. |
-| `get_invoice` / `late_payment_count` / `total_invoices` | Read-only state, including a per-debtor late-payment strike count. |
+get_invoice(invoice_id) -> Invoice
+late_payment_count(debtor) -> u32
+total_invoices() -> u64
+```
 
-15 unit tests cover both the funded and unfunded payment paths, late-vs-
-on-time payment tracking, cancellation rules, and every rejected-input
-case. See `contracts/runway-invoice/src/test.rs`.
+`cancel_invoice` only works while an invoice is still `Open` — once a
+funder has advanced money, cancelling would strand their capital, so
+it's disabled. `pay_invoice` works any time, including past the due
+date; a late payment settles like any other, it just increments
+`late_payment_count` against the debtor instead of getting blocked.
 
-## Roadmap
+15 tests in `contracts/runway-invoice/src/test.rs` — funded and
+unfunded payment paths, on-time vs. late, every rejection case.
 
-- Support for stablecoin-denominated invoices (any Stellar Asset Contract
-  token, not just native XLM).
-- Mainnet deployment.
-- Partial funding — letting more than one funder split an advance on a
-  single invoice.
+## Why no backend
+
+Every write in `frontend/src/lib/contract.ts` builds an *unsigned*
+transaction; your wallet signs it; the frontend submits it. Reads
+simulate against a throwaway account — no funds needed to look something
+up. "What invoices exist" is answered by scanning the contract's own
+`(invoice, created)` event log, not a database this project maintains.
+There's nothing running that could go down, get hacked, or lie about
+what it's returning.
+
+## What Stellar buys you
+
+- sub-cent fees — financing a single small invoice stays worth it
+- ~5 second settlement
+- native-asset invoices need no trustline setup first
+- the payment history above is public and independently checkable
+
+## Not done yet
+
+- stablecoin invoices (any Stellar Asset Contract token, not just XLM)
+- mainnet
+- letting more than one funder split a single invoice's advance
