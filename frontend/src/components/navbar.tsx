@@ -13,9 +13,9 @@ import { shortenAddress } from "@/lib/format";
 import { WalletError } from "@/lib/wallet";
 
 const NAV_LINKS = [
-  { href: "/#how-it-works", label: "How it works" },
-  { href: "/#why-stellar", label: "Why Stellar" },
-  { href: "/about", label: "About" },
+  { href: "/#how-it-works", label: "the lifecycle" },
+  { href: "/#why-stellar", label: "the spec" },
+  { href: "/about", label: "vs. factoring" },
 ];
 
 export function Navbar() {
@@ -54,12 +54,17 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b-2 border-border-strong bg-background/95 backdrop-blur">
-      <div className="" />
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
-        <Link href="/" className="flex items-center gap-2.5 font-semibold tracking-tight">
-          <LogoMark size={26} />
-          <span className="text-[16px] text-foreground">Runway</span>
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link href="/" className="flex items-center gap-2.5 font-semibold tracking-tight">
+            <LogoMark size={26} />
+            <span className="text-[16px] text-foreground">runway</span>
+          </Link>
+          <span className="hidden items-center gap-1.5 border border-border-strong px-2 py-1 text-xs text-muted sm:flex">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent" />
+            testnet
+          </span>
+        </div>
 
         <nav className="hidden items-center gap-1 md:flex">
           {NAV_LINKS.map((link) => (
@@ -102,7 +107,7 @@ export function Navbar() {
                     className="flex w-full items-center gap-2.5 px-3.5 py-2.5 text-left text-sm text-foreground hover:bg-background"
                   >
                     <LogOut size={15} className="text-muted" />
-                    Disconnect
+                    disconnect
                   </button>
                 </motion.div>
               )}
@@ -110,14 +115,14 @@ export function Navbar() {
           ) : (
             <Button onClick={handleConnect} disabled={connecting} size="sm">
               <Wallet size={14} />
-              {connecting ? "Connecting…" : "Connect wallet"}
+              {connecting ? "connecting…" : "$ connect"}
             </Button>
           )}
           <Link
             href="/invoices"
-            className="border border-border-strong bg-foreground px-4 py-2 text-sm font-medium text-background transition-opacity hover:opacity-85"
+            className="border border-accent bg-accent px-4 py-2 text-sm font-medium text-accent-foreground transition-opacity hover:opacity-85"
           >
-            Invoices
+            open app
           </Link>
         </div>
 
@@ -144,7 +149,7 @@ export function Navbar() {
               </Link>
             ))}
             <Link href="/invoices" className="px-3.5 py-2 text-sm text-muted hover:text-foreground">
-              Invoices
+              open app
             </Link>
             <div className="my-2 h-px bg-border" />
             {address ? (
@@ -152,13 +157,13 @@ export function Navbar() {
                 <p className="truncate px-3.5 py-1 text-xs text-muted">{address}</p>
                 <button onClick={disconnectWallet} className="flex items-center gap-2.5 px-3.5 py-2 text-left text-sm text-foreground">
                   <LogOut size={15} className="text-muted" />
-                  Disconnect
+                  disconnect
                 </button>
               </>
             ) : (
               <Button onClick={handleConnect} disabled={connecting} className="mt-1">
                 <Wallet size={14} />
-                {connecting ? "Connecting…" : "Connect wallet"}
+                {connecting ? "connecting…" : "$ connect"}
               </Button>
             )}
           </nav>
