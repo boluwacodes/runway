@@ -179,9 +179,3 @@ like this:
   something any funder can check before deciding whether to back their
   next invoice — verifiable directly, not taken on the payee's word.
 
-## What's not built yet
-
-- Stablecoin invoices — any Stellar Asset Contract token, not just
-  native XLM.
-- Mainnet deployment.
-- Splitting a single invoice's advance across more than one funder.
