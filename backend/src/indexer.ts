@@ -12,7 +12,8 @@ import {
 import { upsertInvoice, type InvoiceRow } from "./db";
 
 const RPC_URL = process.env.STELLAR_RPC_URL ?? "https://soroban-testnet.stellar.org";
-const NETWORK_PASSPHRASE = process.env.STELLAR_NETWORK_PASSPHRASE ?? "Test SDF Network ; September 2015";
+const NETWORK_PASSPHRASE =
+  process.env.STELLAR_NETWORK_PASSPHRASE ?? "Test SDF Network ; September 2015";
 const CONTRACT_ID = process.env.RUNWAY_CONTRACT_ID;
 
 if (!CONTRACT_ID) {
@@ -37,7 +38,10 @@ interface RawInvoice {
 
 async function readCall<T>(method: string, args: xdr.ScVal[]): Promise<T> {
   const account = new Account(Keypair.random().publicKey(), "0");
-  const tx = new TransactionBuilder(account, { fee: BASE_FEE, networkPassphrase: NETWORK_PASSPHRASE })
+  const tx = new TransactionBuilder(account, {
+    fee: BASE_FEE,
+    networkPassphrase: NETWORK_PASSPHRASE,
+  })
     .addOperation(contract.call(method, ...args))
     .setTimeout(30)
     .build();

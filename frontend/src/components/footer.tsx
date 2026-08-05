@@ -35,7 +35,9 @@ export function Footer() {
           )}
         </nav>
 
-        <p className="eyebrow !text-muted">&copy; {new Date().getFullYear()} Runway &middot; Built on Stellar</p>
+        <p className="eyebrow !text-muted">
+          &copy; {new Date().getFullYear()} Runway &middot; Built on Stellar
+        </p>
       </div>
     </footer>
   );

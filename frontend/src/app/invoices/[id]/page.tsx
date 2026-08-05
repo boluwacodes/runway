@@ -20,7 +20,13 @@ import {
   submitSignedTx,
 } from "@/lib/contract";
 import { celebrate } from "@/lib/confetti";
-import { assetLabel, bpsToPercent, formatDueDate, formatDaysUntilDue, formatXlm } from "@/lib/format";
+import {
+  assetLabel,
+  bpsToPercent,
+  formatDueDate,
+  formatDaysUntilDue,
+  formatXlm,
+} from "@/lib/format";
 import { WalletError } from "@/lib/wallet";
 
 const STATUS_TONE = {
@@ -55,7 +61,8 @@ export default function InvoiceDetailPage() {
   const [busy, setBusy] = useState<"fund" | "pay" | "cancel" | null>(null);
 
   useEffect(() => {
-    document.title = invoiceId !== null ? `Invoice #${invoiceId} · Runway` : "Invoice not found · Runway";
+    document.title =
+      invoiceId !== null ? `Invoice #${invoiceId} · Runway` : "Invoice not found · Runway";
   }, [invoiceId]);
 
   const refresh = useCallback(async () => {
@@ -191,7 +198,10 @@ function InvoiceDetail({
           </h1>
         </div>
         <div className="flex items-center gap-3">
-          <CopyButton value={typeof window !== "undefined" ? window.location.href : ""} label="Copy link" />
+          <CopyButton
+            value={typeof window !== "undefined" ? window.location.href : ""}
+            label="Copy link"
+          />
           <Badge tone={STATUS_TONE[invoice.status]}>{STATUS_LABEL[invoice.status]}</Badge>
         </div>
       </div>
@@ -215,7 +225,11 @@ function InvoiceDetail({
           <div>
             <p className="text-xs text-muted">Debtor history</p>
             <p className="mt-1 font-medium">
-              {debtorLateCount === null ? "—" : debtorLateCount === 0 ? "No late payments" : `${debtorLateCount} late`}
+              {debtorLateCount === null
+                ? "—"
+                : debtorLateCount === 0
+                  ? "No late payments"
+                  : `${debtorLateCount} late`}
             </p>
           </div>
         </div>
@@ -231,21 +245,28 @@ function InvoiceDetail({
           </div>
           <div className="min-w-0">
             <dt className="text-muted">Funder</dt>
-            <dd className="mt-1 break-all font-mono text-foreground">{invoice.funder ?? "Not yet funded"}</dd>
+            <dd className="mt-1 break-all font-mono text-foreground">
+              {invoice.funder ?? "Not yet funded"}
+            </dd>
           </div>
         </dl>
 
         <div className="mt-6 flex flex-wrap gap-3">
           {invoice.status === InvoiceStatus.Open && !isPayee && (
             <Button onClick={onFund} disabled={busy !== null}>
-              {busy === "fund" ? "Funding…" : `Fund for ${formatXlm(advanceAmount)} ${assetLabel(invoice.token, NATIVE_TOKEN_ID)}`}
+              {busy === "fund"
+                ? "Funding…"
+                : `Fund for ${formatXlm(advanceAmount)} ${assetLabel(invoice.token, NATIVE_TOKEN_ID)}`}
             </Button>
           )}
-          {(invoice.status === InvoiceStatus.Open || invoice.status === InvoiceStatus.Funded) && isDebtor && (
-            <Button onClick={onPay} disabled={busy !== null}>
-              {busy === "pay" ? "Paying…" : `Pay ${formatXlm(invoice.faceValue)} ${assetLabel(invoice.token, NATIVE_TOKEN_ID)}`}
-            </Button>
-          )}
+          {(invoice.status === InvoiceStatus.Open || invoice.status === InvoiceStatus.Funded) &&
+            isDebtor && (
+              <Button onClick={onPay} disabled={busy !== null}>
+                {busy === "pay"
+                  ? "Paying…"
+                  : `Pay ${formatXlm(invoice.faceValue)} ${assetLabel(invoice.token, NATIVE_TOKEN_ID)}`}
+              </Button>
+            )}
           {invoice.status === InvoiceStatus.Open && isPayee && (
             <Button variant="danger" onClick={onCancel} disabled={busy !== null}>
               {busy === "cancel" ? "Cancelling…" : "Cancel invoice"}

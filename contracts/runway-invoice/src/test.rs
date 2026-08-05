@@ -34,7 +34,14 @@ fn creates_an_invoice_with_open_status() {
     let payee = Address::generate(&env);
     let debtor = Address::generate(&env);
 
-    let id = client.create_invoice(&payee, &debtor, &token, &100_000, &9_500, &(env.ledger().timestamp() + 30 * DAY));
+    let id = client.create_invoice(
+        &payee,
+        &debtor,
+        &token,
+        &100_000,
+        &9_500,
+        &(env.ledger().timestamp() + 30 * DAY),
+    );
     assert_eq!(id, 1);
 
     let invoice = client.get_invoice(&id);
@@ -85,7 +92,14 @@ fn funds_an_invoice_and_advances_the_payee_immediately() {
     let funder = Address::generate(&env);
     asset.mint(&funder, &1_000_000);
 
-    let id = client.create_invoice(&payee, &debtor, &token, &100_000, &9_500, &(env.ledger().timestamp() + 30 * DAY));
+    let id = client.create_invoice(
+        &payee,
+        &debtor,
+        &token,
+        &100_000,
+        &9_500,
+        &(env.ledger().timestamp() + 30 * DAY),
+    );
     client.fund_invoice(&id, &funder);
 
     // 95% of 100_000 advanced immediately.
@@ -110,7 +124,14 @@ fn rejects_funding_a_non_open_invoice() {
         asset.mint(f, &1_000_000);
     }
 
-    let id = client.create_invoice(&payee, &debtor, &token, &100_000, &9_500, &(env.ledger().timestamp() + 30 * DAY));
+    let id = client.create_invoice(
+        &payee,
+        &debtor,
+        &token,
+        &100_000,
+        &9_500,
+        &(env.ledger().timestamp() + 30 * DAY),
+    );
     client.fund_invoice(&id, &funder_a);
 
     assert_eq!(
@@ -130,7 +151,14 @@ fn debtor_pays_a_funded_invoice_and_the_funder_collects_full_face_value() {
     asset.mint(&funder, &1_000_000);
     asset.mint(&debtor, &1_000_000);
 
-    let id = client.create_invoice(&payee, &debtor, &token, &100_000, &9_500, &(env.ledger().timestamp() + 30 * DAY));
+    let id = client.create_invoice(
+        &payee,
+        &debtor,
+        &token,
+        &100_000,
+        &9_500,
+        &(env.ledger().timestamp() + 30 * DAY),
+    );
     client.fund_invoice(&id, &funder);
     client.pay_invoice(&id, &debtor);
 
@@ -151,7 +179,14 @@ fn debtor_pays_an_unfunded_invoice_and_the_payee_collects_directly() {
     let debtor = Address::generate(&env);
     asset.mint(&debtor, &1_000_000);
 
-    let id = client.create_invoice(&payee, &debtor, &token, &100_000, &9_500, &(env.ledger().timestamp() + 30 * DAY));
+    let id = client.create_invoice(
+        &payee,
+        &debtor,
+        &token,
+        &100_000,
+        &9_500,
+        &(env.ledger().timestamp() + 30 * DAY),
+    );
     client.pay_invoice(&id, &debtor);
 
     assert_eq!(token_client.balance(&payee), 100_000);
@@ -169,7 +204,14 @@ fn rejects_payment_from_someone_who_is_not_the_debtor() {
     let outsider = Address::generate(&env);
     asset.mint(&outsider, &1_000_000);
 
-    let id = client.create_invoice(&payee, &debtor, &token, &100_000, &9_500, &(env.ledger().timestamp() + 30 * DAY));
+    let id = client.create_invoice(
+        &payee,
+        &debtor,
+        &token,
+        &100_000,
+        &9_500,
+        &(env.ledger().timestamp() + 30 * DAY),
+    );
 
     assert_eq!(
         client.try_pay_invoice(&id, &outsider),
@@ -186,7 +228,14 @@ fn rejects_paying_an_already_settled_invoice() {
     let debtor = Address::generate(&env);
     asset.mint(&debtor, &1_000_000);
 
-    let id = client.create_invoice(&payee, &debtor, &token, &100_000, &9_500, &(env.ledger().timestamp() + 30 * DAY));
+    let id = client.create_invoice(
+        &payee,
+        &debtor,
+        &token,
+        &100_000,
+        &9_500,
+        &(env.ledger().timestamp() + 30 * DAY),
+    );
     client.pay_invoice(&id, &debtor);
 
     assert_eq!(
@@ -239,7 +288,14 @@ fn payee_can_cancel_an_unfunded_invoice() {
     let payee = Address::generate(&env);
     let debtor = Address::generate(&env);
 
-    let id = client.create_invoice(&payee, &debtor, &token, &100_000, &9_500, &(env.ledger().timestamp() + 30 * DAY));
+    let id = client.create_invoice(
+        &payee,
+        &debtor,
+        &token,
+        &100_000,
+        &9_500,
+        &(env.ledger().timestamp() + 30 * DAY),
+    );
     client.cancel_invoice(&id, &payee);
 
     assert_eq!(client.get_invoice(&id).status, InvoiceStatus::Cancelled);
@@ -255,7 +311,14 @@ fn rejects_cancelling_a_funded_invoice() {
     let funder = Address::generate(&env);
     asset.mint(&funder, &1_000_000);
 
-    let id = client.create_invoice(&payee, &debtor, &token, &100_000, &9_500, &(env.ledger().timestamp() + 30 * DAY));
+    let id = client.create_invoice(
+        &payee,
+        &debtor,
+        &token,
+        &100_000,
+        &9_500,
+        &(env.ledger().timestamp() + 30 * DAY),
+    );
     client.fund_invoice(&id, &funder);
 
     assert_eq!(
@@ -273,7 +336,14 @@ fn rejects_cancellation_by_a_non_payee() {
     let debtor = Address::generate(&env);
     let outsider = Address::generate(&env);
 
-    let id = client.create_invoice(&payee, &debtor, &token, &100_000, &9_500, &(env.ledger().timestamp() + 30 * DAY));
+    let id = client.create_invoice(
+        &payee,
+        &debtor,
+        &token,
+        &100_000,
+        &9_500,
+        &(env.ledger().timestamp() + 30 * DAY),
+    );
 
     assert_eq!(
         client.try_cancel_invoice(&id, &outsider),

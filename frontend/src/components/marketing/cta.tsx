@@ -28,8 +28,12 @@ export function Cta() {
       <div className="mx-auto max-w-4xl px-4 py-24 sm:px-6">
         <div className="max-w-xl">
           <p className="eyebrow">free while on testnet</p>
-          <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">get started in three steps</h2>
-          <p className="mt-3 text-muted">No signup, no account, no email — just a Stellar wallet.</p>
+          <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
+            get started in three steps
+          </h2>
+          <p className="mt-3 text-muted">
+            No signup, no account, no email — just a Stellar wallet.
+          </p>
         </div>
 
         <motion.div

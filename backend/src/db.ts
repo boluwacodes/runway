@@ -60,7 +60,9 @@ export function upsertInvoice(row: InvoiceRow): void {
 }
 
 export function listInvoices(): InvoiceRow[] {
-  return db.prepare("SELECT * FROM invoices ORDER BY CAST(id AS INTEGER) DESC").all() as unknown as InvoiceRow[];
+  return db
+    .prepare("SELECT * FROM invoices ORDER BY CAST(id AS INTEGER) DESC")
+    .all() as unknown as InvoiceRow[];
 }
 
 export function getInvoiceRow(id: string): InvoiceRow | undefined {

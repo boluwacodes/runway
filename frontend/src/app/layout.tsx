@@ -79,7 +79,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           toastOptions={{
             unstyled: true,
             classNames: {
-              toast: "flex items-start gap-3 w-full border border-border-strong bg-card p-4 text-sm text-foreground shadow-lg",
+              toast:
+                "flex items-start gap-3 w-full border border-border-strong bg-card p-4 text-sm text-foreground shadow-lg",
               title: "font-medium",
               description: "text-muted",
               actionButton: "bg-foreground text-background px-2.5 py-1 text-xs",

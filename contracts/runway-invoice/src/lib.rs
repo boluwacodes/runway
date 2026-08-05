@@ -22,7 +22,9 @@
 //! penalized, the same honest, non-punitive approach to a failure mode
 //! nothing on-chain can prevent.
 
-use soroban_sdk::{contract, contracterror, contractimpl, contracttype, symbol_short, token, Address, Env};
+use soroban_sdk::{
+    contract, contracterror, contractimpl, contracttype, symbol_short, token, Address, Env,
+};
 
 #[contracttype]
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -116,7 +118,9 @@ impl RunwayInvoiceContract {
             created_at: env.ledger().timestamp(),
             status: InvoiceStatus::Open,
         };
-        env.storage().persistent().set(&DataKey::Invoice(id), &invoice);
+        env.storage()
+            .persistent()
+            .set(&DataKey::Invoice(id), &invoice);
 
         env.events()
             .publish((symbol_short!("invoice"), symbol_short!("created")), id);
@@ -140,10 +144,14 @@ impl RunwayInvoiceContract {
 
         invoice.funder = Some(funder);
         invoice.status = InvoiceStatus::Funded;
-        env.storage().persistent().set(&DataKey::Invoice(invoice_id), &invoice);
+        env.storage()
+            .persistent()
+            .set(&DataKey::Invoice(invoice_id), &invoice);
 
-        env.events()
-            .publish((symbol_short!("invoice"), symbol_short!("funded")), invoice_id);
+        env.events().publish(
+            (symbol_short!("invoice"), symbol_short!("funded")),
+            invoice_id,
+        );
 
         Ok(())
     }
@@ -163,7 +171,10 @@ impl RunwayInvoiceContract {
             return Err(ContractError::InvoiceAlreadySettled);
         }
 
-        let recipient = invoice.funder.clone().unwrap_or_else(|| invoice.payee.clone());
+        let recipient = invoice
+            .funder
+            .clone()
+            .unwrap_or_else(|| invoice.payee.clone());
         token::Client::new(&env, &invoice.token).transfer(&debtor, &recipient, &invoice.face_value);
 
         if env.ledger().timestamp() > invoice.due_date {
@@ -173,10 +184,14 @@ impl RunwayInvoiceContract {
         }
 
         invoice.status = InvoiceStatus::Paid;
-        env.storage().persistent().set(&DataKey::Invoice(invoice_id), &invoice);
+        env.storage()
+            .persistent()
+            .set(&DataKey::Invoice(invoice_id), &invoice);
 
-        env.events()
-            .publish((symbol_short!("invoice"), symbol_short!("paid")), invoice_id);
+        env.events().publish(
+            (symbol_short!("invoice"), symbol_short!("paid")),
+            invoice_id,
+        );
 
         Ok(())
     }
@@ -196,10 +211,14 @@ impl RunwayInvoiceContract {
         }
 
         invoice.status = InvoiceStatus::Cancelled;
-        env.storage().persistent().set(&DataKey::Invoice(invoice_id), &invoice);
+        env.storage()
+            .persistent()
+            .set(&DataKey::Invoice(invoice_id), &invoice);
 
-        env.events()
-            .publish((symbol_short!("invoice"), symbol_short!("cancel")), invoice_id);
+        env.events().publish(
+            (symbol_short!("invoice"), symbol_short!("cancel")),
+            invoice_id,
+        );
 
         Ok(())
     }
@@ -222,12 +241,19 @@ impl RunwayInvoiceContract {
     }
 
     pub fn total_invoices(env: Env) -> u64 {
-        env.storage().instance().get(&DataKey::NextInvoiceId).unwrap_or(0)
+        env.storage()
+            .instance()
+            .get(&DataKey::NextInvoiceId)
+            .unwrap_or(0)
     }
 }
 
 fn next_id(env: &Env) -> u64 {
-    let current: u64 = env.storage().instance().get(&DataKey::NextInvoiceId).unwrap_or(0);
+    let current: u64 = env
+        .storage()
+        .instance()
+        .get(&DataKey::NextInvoiceId)
+        .unwrap_or(0);
     let next = current + 1;
     env.storage().instance().set(&DataKey::NextInvoiceId, &next);
     next

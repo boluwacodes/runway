@@ -54,7 +54,13 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <WalletContext.Provider
-      value={{ address, connecting, connectWallet, disconnectWallet, signTransaction: signTransactionFn }}
+      value={{
+        address,
+        connecting,
+        connectWallet,
+        disconnectWallet,
+        signTransaction: signTransactionFn,
+      }}
     >
       {children}
     </WalletContext.Provider>

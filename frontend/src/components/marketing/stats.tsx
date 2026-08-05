@@ -29,10 +29,12 @@ export function Stats() {
       <div className="mx-auto max-w-4xl px-4 py-24 sm:px-6">
         <div className="max-w-xl">
           <p className="eyebrow">the indexer, live</p>
-          <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">what&apos;s actually happened</h2>
+          <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
+            what&apos;s actually happened
+          </h2>
           <p className="mt-3 text-muted">
-            Not a projection — every number below comes straight from the invoices indexed off the deployed
-            contract.
+            Not a projection — every number below comes straight from the invoices indexed off the
+            deployed contract.
           </p>
         </div>
 
@@ -46,14 +48,22 @@ export function Stats() {
           <FundingChart financed={stats.financedCount} unfinanced={notFinanced} />
 
           <div className="grid flex-1 grid-cols-1 gap-6 sm:grid-cols-3">
-            <Stat label="invoices registered" value={stats.totalInvoices.toString()} tone="text-foreground" />
+            <Stat
+              label="invoices registered"
+              value={stats.totalInvoices.toString()}
+              tone="text-foreground"
+            />
             <Stat
               label="total advanced to payees"
               value={formatXlm(stats.totalFinanced)}
               suffix="XLM"
               tone="accent-text"
             />
-            <Stat label="open for funding right now" value={stats.openForFunding.toString()} tone="text-accent-gold" />
+            <Stat
+              label="open for funding right now"
+              value={stats.openForFunding.toString()}
+              tone="text-accent-gold"
+            />
           </div>
         </motion.div>
       </div>
@@ -61,7 +71,17 @@ export function Stats() {
   );
 }
 
-function Stat({ label, value, suffix, tone }: { label: string; value: string; suffix?: string; tone: string }) {
+function Stat({
+  label,
+  value,
+  suffix,
+  tone,
+}: {
+  label: string;
+  value: string;
+  suffix?: string;
+  tone: string;
+}) {
   return (
     <div>
       <p className={`text-3xl font-bold ${tone}`}>

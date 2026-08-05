@@ -19,7 +19,14 @@ import {
   ContractCallError,
 } from "@/lib/contract";
 import { fetchInvoicesFromBackend } from "@/lib/backend";
-import { assetLabel, bpsToPercent, formatDaysUntilDue, formatXlm, shortenAddress, xlmToStroops } from "@/lib/format";
+import {
+  assetLabel,
+  bpsToPercent,
+  formatDaysUntilDue,
+  formatXlm,
+  shortenAddress,
+  xlmToStroops,
+} from "@/lib/format";
 import { WalletError } from "@/lib/wallet";
 
 const STATUS_TONE = {
@@ -128,13 +135,17 @@ export default function InvoicesPage() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="eyebrow">invoices</p>
-              <h1 className="mt-2 text-3xl font-bold tracking-tight">register or fund an invoice</h1>
+              <h1 className="mt-2 text-3xl font-bold tracking-tight">
+                register or fund an invoice
+              </h1>
             </div>
-            {total !== null && <Badge tone="gold">{total.toString()} invoices registered on testnet</Badge>}
+            {total !== null && (
+              <Badge tone="gold">{total.toString()} invoices registered on testnet</Badge>
+            )}
           </div>
           <p className="mt-2 max-w-lg text-sm text-muted">
-            Invoices run on Stellar testnet using native XLM. Connect a wallet when you&apos;re ready to register,
-            fund, or pay one.
+            Invoices run on Stellar testnet using native XLM. Connect a wallet when you&apos;re
+            ready to register, fund, or pay one.
           </p>
 
           <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -190,7 +201,11 @@ export default function InvoicesPage() {
                   />
                 </label>
                 <Button type="submit" disabled={creating || connecting} className="mt-2">
-                  {creating ? "Registering…" : address ? "Register invoice" : "Connect wallet & register"}
+                  {creating
+                    ? "Registering…"
+                    : address
+                      ? "Register invoice"
+                      : "Connect wallet & register"}
                 </Button>
               </form>
             </Card>
@@ -254,13 +269,17 @@ export default function InvoicesPage() {
                       <Card className="h-full p-5 transition-shadow hover:shadow-md">
                         <div className="flex items-center justify-between">
                           <span className="eyebrow">Invoice #{invoice.id.toString()}</span>
-                          <Badge tone={STATUS_TONE[invoice.status]}>{STATUS_LABEL[invoice.status]}</Badge>
+                          <Badge tone={STATUS_TONE[invoice.status]}>
+                            {STATUS_LABEL[invoice.status]}
+                          </Badge>
                         </div>
                         <p className="mt-3 text-lg font-semibold">
-                          {formatXlm(invoice.faceValue)} {assetLabel(invoice.token, NATIVE_TOKEN_ID)}
+                          {formatXlm(invoice.faceValue)}{" "}
+                          {assetLabel(invoice.token, NATIVE_TOKEN_ID)}
                         </p>
                         <p className="text-xs text-muted">
-                          {bpsToPercent(invoice.advanceBps)}% advance &middot; {formatDaysUntilDue(invoice.dueDate)}
+                          {bpsToPercent(invoice.advanceBps)}% advance &middot;{" "}
+                          {formatDaysUntilDue(invoice.dueDate)}
                         </p>
                         <div className="mt-4 flex items-center justify-between text-xs text-muted">
                           <span>payee {shortenAddress(invoice.payee)}</span>

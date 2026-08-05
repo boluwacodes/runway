@@ -7,7 +7,13 @@ import { Footer } from "@/components/footer";
 import { LogoMark } from "@/components/logo-mark";
 import { Button } from "@/components/ui";
 
-export default function GlobalError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
+export default function GlobalError({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
   useEffect(() => {
     console.error(error);
   }, [error]);
@@ -22,8 +28,8 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
           That didn&apos;t work.
         </h1>
         <p className="mt-3 max-w-sm text-sm text-muted">
-          Nothing on-chain was affected by this — it&apos;s a page-level error, not a failed transaction. Try again,
-          or head back home.
+          Nothing on-chain was affected by this — it&apos;s a page-level error, not a failed
+          transaction. Try again, or head back home.
         </p>
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
           <Button onClick={reset}>Try again</Button>

@@ -25,7 +25,10 @@ export function CopyButton({ value, label = "Copy", className }: CopyButtonProps
       type="button"
       onClick={handleCopy}
       aria-label={isIconOnly ? (copied ? "Copied to clipboard" : "Copy to clipboard") : undefined}
-      className={cn("inline-flex items-center gap-1.5 text-xs text-muted hover:text-foreground", className)}
+      className={cn(
+        "inline-flex items-center gap-1.5 text-xs text-muted hover:text-foreground",
+        className,
+      )}
     >
       {copied ? (
         <Check size={13} className="text-accent" aria-hidden="true" />

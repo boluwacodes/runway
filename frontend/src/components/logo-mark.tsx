@@ -24,8 +24,20 @@ export function LogoMark({ size = 32, className }: LogoMarkProps) {
       <rect x="5" y="20" width="5" height="8" fill="#047857" />
       <rect x="13.5" y="14" width="5" height="14" fill="#047857" />
       <rect x="22" y="6" width="5" height="22" fill="#047857" />
-      <path d="M4 17L14 9L20 12L28 4" stroke="#1a2421" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M22 4H28V10" stroke="#1a2421" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M4 17L14 9L20 12L28 4"
+        stroke="#1a2421"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M22 4H28V10"
+        stroke="#1a2421"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }

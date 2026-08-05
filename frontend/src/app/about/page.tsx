@@ -9,10 +9,26 @@ export const metadata: Metadata = {
 };
 
 const COMPARISON = [
-  { key: "evaluated_by", factor: "a factoring company, over days", runway: "any funder, in one transaction" },
-  { key: "funds_held_by", factor: "the factor's account", runway: "nobody — direct wallet transfers" },
-  { key: "min_invoice_size", factor: "set high, paperwork isn't worth it below that", runway: "none" },
-  { key: "debtor_history", factor: "the factor's private records, if kept", runway: "public, on-chain" },
+  {
+    key: "evaluated_by",
+    factor: "a factoring company, over days",
+    runway: "any funder, in one transaction",
+  },
+  {
+    key: "funds_held_by",
+    factor: "the factor's account",
+    runway: "nobody — direct wallet transfers",
+  },
+  {
+    key: "min_invoice_size",
+    factor: "set high, paperwork isn't worth it below that",
+    runway: "none",
+  },
+  {
+    key: "debtor_history",
+    factor: "the factor's private records, if kept",
+    runway: "public, on-chain",
+  },
   { key: "settlement_time", factor: "1-5 business days", runway: "~5 seconds" },
 ];
 
@@ -28,9 +44,10 @@ export default function AboutPage() {
               factoring.exe, minus the factor
             </h1>
             <p className="mt-5 max-w-xl text-lg leading-relaxed text-muted">
-              Businesses have advanced each other cash against unpaid invoices for as long as invoices have existed.
-              Runway doesn&apos;t reinvent that — it just removes the company that used to sit in the middle,
-              holding funds, setting minimums, and taking days to wire money a contract moves in seconds.
+              Businesses have advanced each other cash against unpaid invoices for as long as
+              invoices have existed. Runway doesn&apos;t reinvent that — it just removes the company
+              that used to sit in the middle, holding funds, setting minimums, and taking days to
+              wire money a contract moves in seconds.
             </p>
           </div>
         </section>
@@ -44,7 +61,10 @@ export default function AboutPage() {
 
             <div className="term-panel mt-10 divide-y divide-border overflow-x-auto">
               {COMPARISON.map((row) => (
-                <div key={row.key} className="grid min-w-[560px] grid-cols-[160px_1fr_1fr] gap-4 px-5 py-4 text-sm sm:px-6">
+                <div
+                  key={row.key}
+                  className="grid min-w-[560px] grid-cols-[160px_1fr_1fr] gap-4 px-5 py-4 text-sm sm:px-6"
+                >
                   <span className="text-muted">{row.key}</span>
                   <span className="text-muted line-through decoration-1">{row.factor}</span>
                   <span className="accent-text">{row.runway}</span>
@@ -62,22 +82,30 @@ export default function AboutPage() {
             </div>
             <div className="mt-8 max-w-2xl space-y-4 text-sm leading-relaxed text-muted">
               <p>
-                Testnet, not mainnet — free while that&apos;s true. The contract is real, tested, and deployed; the
-                frontend calls it directly. There&apos;s no backend to trust in between.
+                Testnet, not mainnet — free while that&apos;s true. The contract is real, tested,
+                and deployed; the frontend calls it directly. There&apos;s no backend to trust in
+                between.
               </p>
               <p>
-                Invoices settle in native XLM today. Stablecoins and mainnet are the next two things on the list —
-                see{" "}
-                <Link href="https://github.com/boluwacodes/runway" className="accent-text hover:underline">
+                Invoices settle in native XLM today. Stablecoins and mainnet are the next two things
+                on the list — see{" "}
+                <Link
+                  href="https://github.com/boluwacodes/runway"
+                  className="accent-text hover:underline"
+                >
                   the README
                 </Link>
                 .
               </p>
               <p>
-                One thing Runway will never claim: that it can force a debtor to pay. It can&apos;t — no contract
-                can compel an off-chain relationship to resolve. What it guarantees is narrower and real: whatever
-                payment does land gets routed to whoever is actually owed it.{" "}
-                <a href="https://github.com/boluwacodes/runway" className="accent-text hover:underline">
+                One thing Runway will never claim: that it can force a debtor to pay. It can&apos;t
+                — no contract can compel an off-chain relationship to resolve. What it guarantees is
+                narrower and real: whatever payment does land gets routed to whoever is actually
+                owed it.{" "}
+                <a
+                  href="https://github.com/boluwacodes/runway"
+                  className="accent-text hover:underline"
+                >
                   Read the source
                 </a>{" "}
                 and check for yourself.

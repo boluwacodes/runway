@@ -17,9 +17,15 @@ export function Hero() {
   return (
     <section className="term-grid relative overflow-hidden border-b border-border">
       <div className="mx-auto max-w-4xl px-4 pb-20 pt-20 sm:px-6 sm:pt-28">
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+        >
           <p className="eyebrow">
-            {total !== null ? `${total.toString()} invoices financed on testnet` : "live on Stellar testnet"}
+            {total !== null
+              ? `${total.toString()} invoices financed on testnet`
+              : "live on Stellar testnet"}
           </p>
 
           <h1 className="mt-6 text-4xl font-bold leading-[1.15] tracking-tight sm:text-6xl">
@@ -29,8 +35,9 @@ export function Hero() {
           </h1>
 
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted">
-            You did the work. The invoice is real. The cash isn&apos;t — yet. Runway lets a funder advance it to you
-            now, and the debtor settles the contract directly on-chain whenever they actually pay.
+            You did the work. The invoice is real. The cash isn&apos;t — yet. Runway lets a funder
+            advance it to you now, and the debtor settles the contract directly on-chain whenever
+            they actually pay.
           </p>
 
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">

@@ -34,7 +34,9 @@ app.get("/stats", (_req, res) => {
 app.post("/sync", (_req, res) => {
   syncOnce()
     .then((result) => res.json(result))
-    .catch((err) => res.status(500).json({ error: err instanceof Error ? err.message : String(err) }));
+    .catch((err) =>
+      res.status(500).json({ error: err instanceof Error ? err.message : String(err) }),
+    );
 });
 
 app.listen(PORT, () => {

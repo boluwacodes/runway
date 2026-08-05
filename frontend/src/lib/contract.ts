@@ -78,7 +78,10 @@ export class ContractCallError extends Error {}
 /** Read-only call, simulated against a throwaway account — no wallet or funds required. */
 async function readCall<T>(method: string, args: xdr.ScVal[]): Promise<T> {
   const account = new Account(Keypair.random().publicKey(), "0");
-  const tx = new TransactionBuilder(account, { fee: BASE_FEE, networkPassphrase: NETWORK_PASSPHRASE })
+  const tx = new TransactionBuilder(account, {
+    fee: BASE_FEE,
+    networkPassphrase: NETWORK_PASSPHRASE,
+  })
     .addOperation(contract.call(method, ...args))
     .setTimeout(30)
     .build();
@@ -91,7 +94,9 @@ async function readCall<T>(method: string, args: xdr.ScVal[]): Promise<T> {
 }
 
 export async function getInvoice(invoiceId: bigint): Promise<Invoice> {
-  const raw = await readCall<RawInvoice>("get_invoice", [nativeToScVal(invoiceId, { type: "u64" })]);
+  const raw = await readCall<RawInvoice>("get_invoice", [
+    nativeToScVal(invoiceId, { type: "u64" }),
+  ]);
   return parseInvoice(raw);
 }
 
@@ -106,7 +111,10 @@ export async function getTotalInvoices(): Promise<bigint> {
 /** Build an unsigned, simulated-and-assembled transaction ready for a wallet to sign. */
 async function buildTx(sourcePublicKey: string, method: string, args: xdr.ScVal[]) {
   const account = await server.getAccount(sourcePublicKey);
-  const tx = new TransactionBuilder(account, { fee: BASE_FEE, networkPassphrase: NETWORK_PASSPHRASE })
+  const tx = new TransactionBuilder(account, {
+    fee: BASE_FEE,
+    networkPassphrase: NETWORK_PASSPHRASE,
+  })
     .addOperation(contract.call(method, ...args))
     .setTimeout(60)
     .build();
@@ -200,7 +208,10 @@ export async function discoverInvoiceIds(lookbackLedgers = 9_000, limit = 50): P
           type: "contract",
           contractIds: [CONTRACT_ID],
           topics: [
-            [xdr.ScVal.scvSymbol("invoice").toXDR("base64"), xdr.ScVal.scvSymbol("created").toXDR("base64")],
+            [
+              xdr.ScVal.scvSymbol("invoice").toXDR("base64"),
+              xdr.ScVal.scvSymbol("created").toXDR("base64"),
+            ],
           ],
         },
       ],

@@ -8,7 +8,9 @@ export class WalletError extends Error {}
 export async function connectWallet(): Promise<string> {
   const connected = await isConnected();
   if (connected.error || !connected.isConnected) {
-    throw new WalletError("No Stellar wallet found. Install the Freighter browser extension to continue.");
+    throw new WalletError(
+      "No Stellar wallet found. Install the Freighter browser extension to continue.",
+    );
   }
 
   const result = await getAddress();
@@ -20,7 +22,10 @@ export async function connectWallet(): Promise<string> {
 }
 
 export async function signWithWallet(unsignedXdr: string, address: string): Promise<string> {
-  const result = await signTransaction(unsignedXdr, { networkPassphrase: NETWORK_PASSPHRASE, address });
+  const result = await signTransaction(unsignedXdr, {
+    networkPassphrase: NETWORK_PASSPHRASE,
+    address,
+  });
   if (result.error || !result.signedTxXdr) {
     throw new WalletError(result.error?.message ?? "Wallet signing was cancelled or failed.");
   }

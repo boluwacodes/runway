@@ -102,7 +102,10 @@ export function Navbar() {
               >
                 <span className="h-2 w-2 rounded-full bg-accent" />
                 {shortenAddress(address)}
-                <ChevronDown size={14} className={`transition-transform ${accountMenuOpen ? "rotate-180" : ""}`} />
+                <ChevronDown
+                  size={14}
+                  className={`transition-transform ${accountMenuOpen ? "rotate-180" : ""}`}
+                />
               </button>
 
               {accountMenuOpen && (
@@ -112,7 +115,9 @@ export function Navbar() {
                   transition={{ duration: 0.15 }}
                   className="term-panel absolute right-0 mt-2 w-52 overflow-hidden py-1"
                 >
-                  <p className="truncate border-b border-border px-3.5 py-2.5 text-xs text-muted">{address}</p>
+                  <p className="truncate border-b border-border px-3.5 py-2.5 text-xs text-muted">
+                    {address}
+                  </p>
                   <button
                     onClick={() => {
                       disconnectWallet();
@@ -162,7 +167,11 @@ export function Navbar() {
         >
           <nav className="flex flex-col gap-1">
             {NAV_LINKS.map((link) => (
-              <Link key={link.href} href={link.href} className="px-3.5 py-2 text-sm text-muted hover:text-foreground">
+              <Link
+                key={link.href}
+                href={link.href}
+                className="px-3.5 py-2 text-sm text-muted hover:text-foreground"
+              >
                 {link.label}
               </Link>
             ))}
@@ -173,7 +182,10 @@ export function Navbar() {
             {address ? (
               <>
                 <p className="truncate px-3.5 py-1 text-xs text-muted">{address}</p>
-                <button onClick={disconnectWallet} className="flex items-center gap-2.5 px-3.5 py-2 text-left text-sm text-foreground">
+                <button
+                  onClick={disconnectWallet}
+                  className="flex items-center gap-2.5 px-3.5 py-2 text-left text-sm text-foreground"
+                >
                   <LogOut size={15} className="text-muted" />
                   disconnect
                 </button>
