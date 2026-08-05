@@ -36,6 +36,7 @@ describe("db", () => {
     expect(result.total_invoices).toBe(3);
     expect(result.open_for_funding).toBe(1);
     expect(result.total_financed).toBe(500); // only the two with a funder
+    expect(result.financed_count).toBe(2);
   });
 });
 

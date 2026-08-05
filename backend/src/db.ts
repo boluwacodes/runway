@@ -74,9 +74,15 @@ export function stats() {
       `SELECT
          COUNT(*) as total_invoices,
          COALESCE(SUM(CASE WHEN funder IS NOT NULL THEN CAST(face_value AS INTEGER) ELSE 0 END), 0) as total_financed,
+         COALESCE(SUM(CASE WHEN funder IS NOT NULL THEN 1 ELSE 0 END), 0) as financed_count,
          COALESCE(SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END), 0) as open_for_funding
        FROM invoices`,
     )
-    .get() as unknown as { total_invoices: number; total_financed: number; open_for_funding: number };
+    .get() as unknown as {
+    total_invoices: number;
+    total_financed: number;
+    financed_count: number;
+    open_for_funding: number;
+  };
   return row;
 }
