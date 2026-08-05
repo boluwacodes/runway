@@ -95,34 +95,56 @@ body {
   content: "> ";
 }
 
-/* A dark panel with bracket corners, like a terminal window frame. */
+/*
+ * A cut-corner panel — the top-left and bottom-right corners are sliced off
+ * at 45°, with the accent color showing through the cut. Was a terminal
+ * bracket-frame (border traced just the corners); this reads more like a
+ * punched technical panel, and the diagonal cuts read clearly against the
+ * faint scanline fill even at rest, not just on hover.
+ */
 .term-panel {
-  background: var(--card);
-  border: 1px solid var(--border-strong);
+  --notch: 14px;
   position: relative;
+  background:
+    repeating-linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--foreground) 4%, transparent) 0px,
+      color-mix(in srgb, var(--foreground) 4%, transparent) 1px,
+      transparent 1px,
+      transparent 9px
+    ),
+    var(--card);
+  border: 1px solid var(--border-strong);
+  clip-path: polygon(
+    var(--notch) 0,
+    100% 0,
+    100% calc(100% - var(--notch)),
+    calc(100% - var(--notch)) 100%,
+    0 100%,
+    0 var(--notch)
+  );
 }
 
 .term-panel::before,
 .term-panel::after {
   content: "";
   position: absolute;
-  width: 10px;
-  height: 10px;
+  width: var(--notch);
+  height: var(--notch);
+  background: var(--accent);
   pointer-events: none;
 }
 
 .term-panel::before {
-  top: -1px;
-  left: -1px;
-  border-top: 2px solid var(--accent);
-  border-left: 2px solid var(--accent);
+  top: 0;
+  left: 0;
+  clip-path: polygon(0 0, 100% 0, 0 100%);
 }
 
 .term-panel::after {
-  bottom: -1px;
-  right: -1px;
-  border-bottom: 2px solid var(--accent);
-  border-right: 2px solid var(--accent);
+  bottom: 0;
+  right: 0;
+  clip-path: polygon(100% 100%, 0 100%, 100% 0);
 }
 
 .accent-text {
