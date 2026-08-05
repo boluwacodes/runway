@@ -96,49 +96,19 @@ body {
 }
 
 /*
- * A cut-corner panel — the top-left and bottom-right corners are sliced off
- * at 45°, with the accent color showing through the cut. Was a terminal
- * bracket-frame (border traced just the corners); this reads more like a
- * punched technical panel, and the diagonal cuts read clearly against the
- * faint scanline fill even at rest, not just on hover.
+ * A hard offset shadow, no blur — the accent color sits behind the panel,
+ * offset down-right, like a card stamped on top of a colored one behind
+ * it. Previous attempts (bracket-corner frame, then a cut-corner notch
+ * with a faint tint) both read as flat, especially in light mode where a
+ * pale accent tint on white card is nearly invisible. A solid offset
+ * shadow has actual weight in either theme since it doesn't depend on
+ * blending with the card color at all.
  */
 .term-panel {
-  --notch: 14px;
   position: relative;
-  background:
-    radial-gradient(140% 120% at 0% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 55%),
-    var(--card);
-  border: 1px solid var(--border-strong);
-  clip-path: polygon(
-    var(--notch) 0,
-    100% 0,
-    100% calc(100% - var(--notch)),
-    calc(100% - var(--notch)) 100%,
-    0 100%,
-    0 var(--notch)
-  );
-}
-
-.term-panel::before,
-.term-panel::after {
-  content: "";
-  position: absolute;
-  width: var(--notch);
-  height: var(--notch);
-  background: var(--accent);
-  pointer-events: none;
-}
-
-.term-panel::before {
-  top: 0;
-  left: 0;
-  clip-path: polygon(0 0, 100% 0, 0 100%);
-}
-
-.term-panel::after {
-  bottom: 0;
-  right: 0;
-  clip-path: polygon(100% 100%, 0 100%, 100% 0);
+  background: var(--card);
+  border: 2px solid var(--border-strong);
+  box-shadow: 6px 6px 0 0 var(--accent);
 }
 
 .accent-text {
