@@ -52,3 +52,35 @@ export async function fetchInvoicesFromBackend(): Promise<Invoice[] | null> {
     return null;
   }
 }
+
+export interface IndexerStats {
+  totalInvoices: number;
+  totalFinanced: bigint;
+  financedCount: number;
+  openForFunding: number;
+}
+
+interface BackendStatsRow {
+  total_invoices: number;
+  total_financed: number;
+  financed_count: number;
+  open_for_funding: number;
+}
+
+/** Same optional-with-fallback contract as fetchInvoicesFromBackend — null means "don't show this," not "show zero." */
+export async function fetchStatsFromBackend(): Promise<IndexerStats | null> {
+  if (!BACKEND_URL) return null;
+  try {
+    const res = await fetch(`${BACKEND_URL}/stats`, { signal: AbortSignal.timeout(4_000) });
+    if (!res.ok) return null;
+    const row = (await res.json()) as BackendStatsRow;
+    return {
+      totalInvoices: row.total_invoices,
+      totalFinanced: BigInt(row.total_financed),
+      financedCount: row.financed_count,
+      openForFunding: row.open_for_funding,
+    };
+  } catch {
+    return null;
+  }
+}
