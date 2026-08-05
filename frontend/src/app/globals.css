@@ -106,13 +106,7 @@ body {
   --notch: 14px;
   position: relative;
   background:
-    repeating-linear-gradient(
-      135deg,
-      color-mix(in srgb, var(--foreground) 4%, transparent) 0px,
-      color-mix(in srgb, var(--foreground) 4%, transparent) 1px,
-      transparent 1px,
-      transparent 9px
-    ),
+    radial-gradient(140% 120% at 0% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 55%),
     var(--card);
   border: 1px solid var(--border-strong);
   clip-path: polygon(

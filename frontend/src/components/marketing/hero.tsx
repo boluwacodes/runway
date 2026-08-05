@@ -70,7 +70,7 @@ function DaysCounter() {
         <p className="mt-2 text-5xl font-bold text-muted line-through decoration-2">60</p>
         <p className="mt-1 text-sm text-muted">days waiting on a customer to pay</p>
       </div>
-      <div className="flex-1 bg-card p-6">
+      <div className="flex-1 bg-accent/5 p-6">
         <p className="eyebrow">with Runway</p>
         <p className="mt-2 text-5xl font-bold accent-text">0</p>
         <p className="mt-1 text-sm text-muted">days — a funder advances it today</p>
