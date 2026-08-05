@@ -1,115 +1,187 @@
 # Runway
 
-```
-$ runway create-invoice --debtor GABC..XYZ --amount 4800 --advance 95%
-invoice #142 registered · status: open
+Runway turns an unpaid invoice into cash today, without a factoring
+company in the middle.
 
-$ runway fund-invoice 142
-4,560.00 XLM sent to payee · status: funded
+Here's the situation it's for: you've done the work, you sent the
+invoice, and now you're waiting — sometimes 60 days or more — for the
+customer to actually pay. Runway lets someone else advance you most of
+that invoice's value right now, in a single Stellar transaction, in
+exchange for collecting the full amount later when your customer
+actually settles. You get paid today instead of in two months. The
+funder earns the spread between what they advanced and what they
+collect. The customer pays exactly the same amount, on exactly the same
+schedule, to whoever ends up owed it — the only thing that changes for
+them is which wallet address the payment goes to.
 
-$ runway pay-invoice 142
-4,800.00 XLM settled to funder · status: paid
-```
+Nobody holds custody of anyone else's money at any point. The payee
+registers the invoice, a funder advances XLM straight to the payee's
+wallet, and the customer later pays straight into the contract, which
+routes it automatically. There's no company sitting in the middle
+collecting a fee for holding funds, no minimum invoice size because the
+paperwork isn't worth it below that, and no multi-day wait for a wire
+transfer to clear — a Stellar transaction settles in about five seconds
+for a fraction of a cent.
 
-That's the whole product. A funder advances 95% of an invoice's face
-value the moment it's registered; the debtor settles the full amount
-on-chain whenever they actually pay; the contract routes it to whichever
-of them is owed it. No factoring company sitting in between, holding
-funds, setting a minimum invoice size, or taking days to wire an advance.
+It runs on Stellar's public testnet today. Contract logic and tests are
+real; mainnet is the next step once the model's been exercised more.
 
-`network: Stellar / Soroban, testnet` · `license: MIT`
+## A concrete example
 
-## The math on one invoice
+Say an invoice is worth 4,800 XLM, and at registration the payee set the
+advance rate to 95%. A funder who backs it sends 4,560 XLM to the payee
+immediately — that's the 95% advance. When the debtor eventually pays
+the full 4,800 XLM, the contract routes all of it to the funder, who
+nets 240 XLM for having supplied the cash early. That 240 XLM spread is
+the funder's entire return, and it's fixed the moment the invoice is
+funded — nobody renegotiates it later.
 
-```
-face_value       4,800.00 XLM
-advance_bps      9500  (95%)
-advance_amount   4,560.00 XLM  → paid to the payee immediately on fund_invoice
-funder_profit      240.00 XLM  → the spread, collected in full on pay_invoice
-```
+The advance rate isn't a fixed protocol parameter; whoever registers the
+invoice sets it. A payee willing to accept a lower advance (say 85%
+instead of 95%) is offering a funder a bigger spread, which matters most
+for an unfamiliar or first-time debtor a funder is less sure about.
 
-Set `advance_bps` however you want at creation — 95% above is an example,
-not a default. Lower it and the payee gets less upfront; a funder backing
-a first-time, unverified debtor will usually want that lower number.
+## What's in this repo
 
-## Repo map
+This is one repo with three parts that don't share a runtime, only a
+contract ID:
 
-```
-contracts/runway-invoice/   Soroban contract — create/fund/pay/cancel
-backend/                    read-only indexer/API, see "the backend" below
-frontend/                   Next.js app — talks to the contract directly
-                             for every write, the backend only for browsing
-```
+- **`contracts/runway-invoice`** is the Soroban contract itself —
+  register, fund, pay, and cancel an invoice, plus the on-chain record
+  of who's paid late. This is the actual source of truth; nothing else
+  in the repo can do anything the contract doesn't allow.
+- **`backend`** is a small, optional, read-only service. It never holds
+  a key and never signs anything — it just mirrors the contract's public
+  state into a local database so the app's browse list loads fast. More
+  on exactly why below.
+- **`frontend`** is the Next.js app people actually use. Every action
+  that moves money — registering, funding, paying, cancelling — builds
+  an unsigned transaction here, hands it to the user's wallet to sign,
+  and submits the signed result. The backend is never part of that path.
 
-## Run it
+## Running it locally
+
+You'll need Rust with the `wasm32v1-none` target for the contract, and
+Node 22+ for the backend and frontend. You'll also want
+[Freighter](https://www.freighter.app/) installed and set to Stellar's
+testnet, funded with test XLM from
+[the Laboratory](https://laboratory.stellar.org/#account-creator?network=test)
+— that's the wallet the app will ask you to connect.
+
+Start with the contract, since the other two pieces need a deployed
+contract ID to talk to:
 
 ```bash
-git clone https://github.com/boluwacodes/runway.git && cd runway
-
 cd contracts && cargo test --workspace && stellar contract build
-
-cd ../backend && npm install
-cp .env.example .env   # fill in RUNWAY_CONTRACT_ID
-npm run dev             # :3030
-
-cd ../frontend && npm install
-cp .env.example .env.local   # fill in NEXT_PUBLIC_RUNWAY_CONTRACT_ID
-npm run dev              # :3000
 ```
 
-The backend is optional — the frontend runs fine without it, just slower
-to list invoices (see below). You'll need [Freighter](https://www.freighter.app/)
-on Stellar testnet, funded via [the Laboratory](https://laboratory.stellar.org/#account-creator?network=test).
+That builds and runs the 15 tests covering every function's happy path
+and rejection cases. To actually get a contract ID for the backend and
+frontend to point at, deploy the built wasm to testnet:
 
-## Contract interface
-
-```
-create_invoice(payee, debtor, token, face_value, advance_bps, due_date) -> invoice_id
-fund_invoice(invoice_id, funder)
-pay_invoice(invoice_id, debtor)
-cancel_invoice(invoice_id, caller)
-
-get_invoice(invoice_id) -> Invoice
-late_payment_count(debtor) -> u32
-total_invoices() -> u64
+```bash
+stellar keys generate deployer --network testnet --fund
+stellar contract deploy \
+  --wasm target/wasm32v1-none/release/runway_invoice.wasm \
+  --source deployer --network testnet
 ```
 
-`cancel_invoice` only works while an invoice is still `Open` — once a
-funder has advanced money, cancelling would strand their capital, so
-it's disabled. `pay_invoice` works any time, including past the due
-date; a late payment settles like any other, it just increments
-`late_payment_count` against the debtor instead of getting blocked.
+That prints the contract ID you'll fill into both `.env` files below.
 
-15 tests in `contracts/runway-invoice/src/test.rs` — funded and
-unfunded payment paths, on-time vs. late, every rejection case.
+The backend is genuinely optional. Skip it and the app still works,
+it'll just discover invoices by scanning the contract's event log
+directly instead of reading from a fast local mirror — slower, but
+correct either way. To run it:
 
-## The backend (and why it can't touch your money)
+```bash
+cd backend && npm install
+cp .env.example .env
+npm run dev
+```
 
-Every write still happens the same way regardless of whether the backend
-is running: `frontend/src/lib/contract.ts` builds an *unsigned*
-transaction, your wallet signs it, the frontend submits it. The backend is
-never in that path — it holds no key, and nothing in `backend/src/` ever
-constructs or signs a transaction.
+Fill in `RUNWAY_CONTRACT_ID` in that `.env` first. It listens on port
+3030 by default.
 
-What it does do: poll `total_invoices()` and refetch every invoice's
-current state directly from contract storage, on a loop, into SQLite.
-That's what `GET /invoices` on the frontend's browse list actually reads
-— it's just a faster mirror of public on-chain state, not a new trust
-requirement. If it's down, `frontend/src/lib/contract.ts` falls back to
-scanning the contract's own event log directly, the same way it did before
-the backend existed. Either way, the detail page that actually gates
-fund/pay/cancel reads live from the contract, backend or not. See
-[backend/README.md](./backend/README.md) for the reasoning in full.
+Then the frontend:
 
-## What Stellar buys you
+```bash
+cd frontend && npm install
+cp .env.example .env.local
+npm run dev
+```
 
-- sub-cent fees — financing a single small invoice stays worth it
-- ~5 second settlement
-- native-asset invoices need no trustline setup first
-- the payment history above is public and independently checkable
+Fill in `NEXT_PUBLIC_RUNWAY_CONTRACT_ID` there too, and optionally
+`NEXT_PUBLIC_BACKEND_URL` if you're running the backend and want the
+faster path. It listens on port 3000 by default.
 
-## Not done yet
+## What the contract actually does
 
-- stablecoin invoices (any Stellar Asset Contract token, not just XLM)
-- mainnet
-- letting more than one funder split a single invoice's advance
+Seven functions, all in `contracts/runway-invoice/src/lib.rs`:
+
+- **`create_invoice`** registers a new invoice — who's owed the money,
+  who owes it, the amount, the advance rate, and the due date. Nothing
+  moves yet; this just puts the invoice on record with an `Open` status.
+- **`fund_invoice`** is how a funder advances cash. It sends the advance
+  amount straight to the payee's wallet and moves the invoice to
+  `Funded`.
+- **`pay_invoice`** is how the debtor settles it — at any time, including
+  after the due date. A late payment isn't blocked or penalized; it
+  settles exactly like an on-time one, it's just recorded against the
+  debtor's on-chain late-payment count so a future funder can see it
+  before deciding whether to back that debtor again.
+- **`cancel_invoice`** only works while an invoice is still `Open`. Once
+  a funder has advanced real money against it, cancelling is disabled —
+  there'd be no way to cancel without stranding capital the funder
+  already sent.
+- **`get_invoice`**, **`total_invoices`**, and **`late_payment_count`**
+  are the read side — anyone can look up an invoice's current state, the
+  running count, or a specific debtor's late-payment history, no
+  authorization required.
+
+Every function that moves money or changes state is gated by
+`require_auth()` against whichever party the call claims to be acting
+as, so nobody can fund, pay, or cancel on someone else's behalf.
+
+## The backend, and why it can't touch your money
+
+Regardless of whether the backend is running, every write happens the
+same way: `frontend/src/lib/contract.ts` builds an unsigned transaction,
+your wallet signs it, and the frontend submits the signed result. The
+backend is never part of that path — nothing in `backend/src/` ever
+constructs or signs a transaction, and it holds no key at all.
+
+What it actually does is read `total_invoices()` from the contract,
+then fetch every invoice's current state directly from contract
+storage, on a repeating loop, into a local SQLite database. That's the
+data the app's browse list reads from when it's available — a faster
+mirror of state that's already public on-chain, not a new source of
+trust. If the backend is down or unreachable, the frontend automatically
+falls back to scanning the contract's event log directly instead, the
+same way it worked before the backend existed. Either way, the invoice
+detail page — where funding, paying, and cancelling actually happen —
+always reads live from the contract itself, backend or not. Full
+reasoning in [backend/README.md](./backend/README.md).
+
+## Why this needed Stellar specifically
+
+A few properties of the network end up mattering a lot for something
+like this:
+
+- **Sub-cent fees.** Financing a genuinely small invoice — a few hundred
+  dollars — only makes sense if the network fee doesn't eat a meaningful
+  chunk of the spread. It doesn't here.
+- **Around five-second settlement.** A funder's advance and a debtor's
+  payment both land in seconds, not the days a bank wire takes.
+- **No trustline setup required.** Invoices default to native XLM, so
+  there's no extra step before a first-time funder or debtor can
+  transact.
+- **Public payment history.** A debtor's on-chain late-payment record is
+  something any funder can check before deciding whether to back their
+  next invoice — verifiable directly, not taken on the payee's word.
+
+## What's not built yet
+
+- Stablecoin invoices — any Stellar Asset Contract token, not just
+  native XLM.
+- Mainnet deployment.
+- Splitting a single invoice's advance across more than one funder.

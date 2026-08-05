@@ -38,6 +38,6 @@ addon to compile, no separate database server to run.
 |---|---|
 | `GET /invoices` | every indexed invoice, newest id first |
 | `GET /invoices/:id` | one invoice, or 404 if not indexed yet |
-| `GET /stats` | `{ total_invoices, total_financed, open_for_funding }` |
+| `GET /stats` | `{ total_invoices, total_financed, financed_count, open_for_funding }` |
 | `POST /sync` | triggers an immediate sync, mostly for local dev |
 | `GET /health` | `{ ok: true }` |
