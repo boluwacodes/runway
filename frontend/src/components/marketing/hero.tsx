@@ -64,7 +64,7 @@ export function Hero() {
 
 function DaysCounter() {
   return (
-    <div className="term-panel flex flex-col divide-y divide-border sm:flex-row sm:divide-x sm:divide-y-0">
+    <div className="hero-panel relative flex flex-col divide-y divide-border sm:flex-row sm:divide-x sm:divide-y-0">
       <div className="flex-1 p-6">
         <p className="eyebrow !text-muted">without Runway</p>
         <p className="mt-2 text-5xl font-bold text-muted line-through decoration-2">60</p>

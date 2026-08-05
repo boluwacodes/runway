@@ -98,16 +98,41 @@ body {
   content: "> ";
 }
 
-/*
- * Just a different fill — var(--panel) is a distinct, authored color per
- * theme (not var(--card) blended with something at low opacity), so it
- * doesn't wash out in light mode the way a computed tint did. No shadow,
- * no clipped corners, no second box sitting behind it — the earlier
- * attempts at this all added some extra shape instead of changing the
- * box's own background, which wasn't the ask.
- */
+/* A dark panel with bracket corners, like a terminal window frame. Shared
+   by every card/box on the site — the Card component, stats, cta,
+   why-stellar, how-it-works, the navbar dropdown. */
 .term-panel {
+  background: var(--card);
+  border: 1px solid var(--border-strong);
   position: relative;
+}
+
+.term-panel::before,
+.term-panel::after {
+  content: "";
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  pointer-events: none;
+}
+
+.term-panel::before {
+  top: -1px;
+  left: -1px;
+  border-top: 2px solid var(--accent);
+  border-left: 2px solid var(--accent);
+}
+
+.term-panel::after {
+  bottom: -1px;
+  right: -1px;
+  border-bottom: 2px solid var(--accent);
+  border-right: 2px solid var(--accent);
+}
+
+/* One-off: just the hero's "without/with Runway" box, not the shared
+   .term-panel style every other box on the site uses. */
+.hero-panel {
   background: var(--panel);
   border: 1px solid var(--border-strong);
 }
