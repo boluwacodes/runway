@@ -39,7 +39,7 @@ export default function AboutPage() {
           <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 sm:py-20">
             <div className="max-w-xl">
               <p className="eyebrow">diff</p>
-              <h2 className="mt-3 text-3xl font-bold tracking-tight">factor vs. runway</h2>
+              <h2 className="mt-3 text-3xl font-bold tracking-tight">factor vs. Runway</h2>
             </div>
 
             <div className="term-panel mt-10 divide-y divide-border overflow-x-auto">

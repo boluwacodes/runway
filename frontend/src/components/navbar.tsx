@@ -58,7 +58,7 @@ export function Navbar() {
         <div className="flex items-center gap-4">
           <Link href="/" className="flex items-center gap-2.5 font-semibold tracking-tight">
             <LogoMark size={26} />
-            <span className="text-[16px] text-foreground">runway</span>
+            <span className="text-[16px] text-foreground">Runway</span>
           </Link>
           <span className="hidden items-center gap-1.5 border border-border-strong px-2 py-1 text-xs text-muted sm:flex">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent" />
