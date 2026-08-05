@@ -44,7 +44,7 @@ export function Hero() {
               href="#how-it-works"
               className="border border-border-strong px-6 py-3 text-center text-sm font-medium text-foreground transition-colors hover:bg-card"
             >
-              see how it works
+              see what changes for you
             </a>
           </div>
         </motion.div>
