@@ -4,13 +4,27 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { ChevronDown, LogOut, Menu, Wallet, X } from "lucide-react";
+import { ChevronDown, LogOut, Menu, Moon, Sun, Wallet, X } from "lucide-react";
 import { toast } from "sonner";
 import { LogoMark } from "./logo-mark";
 import { Button } from "./ui/button";
+import { useTheme } from "@/context/theme-context";
 import { useWallet } from "@/context/wallet-context";
 import { shortenAddress } from "@/lib/format";
 import { WalletError } from "@/lib/wallet";
+
+function ThemeToggle() {
+  const { theme, toggleTheme } = useTheme();
+  return (
+    <button
+      onClick={toggleTheme}
+      aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+      className="flex h-9 w-9 shrink-0 items-center justify-center border border-border-strong text-muted transition-colors hover:text-foreground"
+    >
+      {theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
+    </button>
+  );
+}
 
 const NAV_LINKS = [
   { href: "/#how-it-works", label: "the lifecycle" },
@@ -124,16 +138,20 @@ export function Navbar() {
           >
             open app
           </Link>
+          <ThemeToggle />
         </div>
 
-        <button
-          className="flex h-9 w-9 items-center justify-center text-foreground md:hidden"
-          aria-label={menuOpen ? "Close menu" : "Open menu"}
-          aria-expanded={menuOpen}
-          onClick={() => setMenuOpen((open) => !open)}
-        >
-          {menuOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
+        <div className="flex items-center gap-2 md:hidden">
+          <ThemeToggle />
+          <button
+            className="flex h-9 w-9 items-center justify-center text-foreground"
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((open) => !open)}
+          >
+            {menuOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        </div>
       </div>
 
       {menuOpen && (

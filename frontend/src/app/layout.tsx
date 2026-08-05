@@ -2,7 +2,23 @@ import type { Metadata } from "next";
 import { Fira_Code } from "next/font/google";
 import { Toaster } from "sonner";
 import { WalletProvider } from "@/context/wallet-context";
+import { ThemeProvider } from "@/context/theme-context";
 import "./globals.css";
+
+// Runs before hydration so the site never flashes the wrong theme — reads
+// the same localStorage key theme-context.tsx writes to, falling back to
+// the OS preference for a first-time visitor.
+const THEME_INIT_SCRIPT = `
+(function () {
+  try {
+    var stored = localStorage.getItem("runway-theme");
+    var theme = stored === "light" || stored === "dark"
+      ? stored
+      : (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+    document.documentElement.dataset.theme = theme;
+  } catch (e) {}
+})();
+`;
 
 // One monospace family for everything — body, headlines, and labels alike.
 // Neither other Stellar project in this account uses mono for display type;
@@ -50,9 +66,14 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${firaCode.variable} h-full antialiased`}>
+    <html lang="en" className={`${firaCode.variable} h-full antialiased`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
       <body className="min-h-full flex flex-col overflow-x-hidden bg-background text-foreground">
-        <WalletProvider>{children}</WalletProvider>
+        <ThemeProvider>
+          <WalletProvider>{children}</WalletProvider>
+        </ThemeProvider>
         <Toaster
           position="bottom-right"
           toastOptions={{
