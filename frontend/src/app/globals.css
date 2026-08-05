@@ -7,6 +7,7 @@
   --border: #1f2923;
   --border-strong: #39493f;
   --card: #101512;
+  --panel: #142013;
   --accent: #a3e635;
   --accent-foreground: #0a0d0b;
   --accent-gold: #fbbf24;
@@ -24,6 +25,7 @@
   --border: #dde3dc;
   --border-strong: #b9c4ba;
   --card: #ffffff;
+  --panel: #eef3e5;
   --accent: #4d7c0f;
   --accent-foreground: #f6f7f4;
   --accent-gold: #b45309;
@@ -38,6 +40,7 @@
   --color-border: var(--border);
   --color-border-strong: var(--border-strong);
   --color-card: var(--card);
+  --color-panel: var(--panel);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent-gold: var(--accent-gold);
@@ -96,19 +99,17 @@ body {
 }
 
 /*
- * A hard offset shadow, no blur — the accent color sits behind the panel,
- * offset down-right, like a card stamped on top of a colored one behind
- * it. Previous attempts (bracket-corner frame, then a cut-corner notch
- * with a faint tint) both read as flat, especially in light mode where a
- * pale accent tint on white card is nearly invisible. A solid offset
- * shadow has actual weight in either theme since it doesn't depend on
- * blending with the card color at all.
+ * Just a different fill — var(--panel) is a distinct, authored color per
+ * theme (not var(--card) blended with something at low opacity), so it
+ * doesn't wash out in light mode the way a computed tint did. No shadow,
+ * no clipped corners, no second box sitting behind it — the earlier
+ * attempts at this all added some extra shape instead of changing the
+ * box's own background, which wasn't the ask.
  */
 .term-panel {
   position: relative;
-  background: var(--card);
-  border: 2px solid var(--border-strong);
-  box-shadow: 6px 6px 0 0 var(--accent);
+  background: var(--panel);
+  border: 1px solid var(--border-strong);
 }
 
 .accent-text {
