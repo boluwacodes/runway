@@ -1,4 +1,4 @@
-# Runway - Invoice financing on Stellar
+# <img src="docs/logo.svg" width="30" height="30" align="center" alt=""> Runway - Invoice financing on Stellar
 
 Runway turns an unpaid invoice into cash today, without a factoring
 company in the middle.
