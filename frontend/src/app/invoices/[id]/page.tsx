@@ -19,6 +19,7 @@ import {
   latePaymentCount,
   submitSignedTx,
 } from "@/lib/contract";
+import { celebrate } from "@/lib/confetti";
 import { assetLabel, bpsToPercent, formatDueDate, formatDaysUntilDue, formatXlm } from "@/lib/format";
 import { WalletError } from "@/lib/wallet";
 
@@ -87,6 +88,7 @@ export default function InvoiceDetailPage() {
       const signedXdr = await signTransaction(unsignedXdr);
       await submitSignedTx(signedXdr);
       toast.success("Invoice funded");
+      celebrate();
       await refresh();
     } catch (err) {
       toast.error(errorMessage(err, "Could not fund invoice."));
@@ -104,6 +106,7 @@ export default function InvoiceDetailPage() {
       const signedXdr = await signTransaction(unsignedXdr);
       await submitSignedTx(signedXdr);
       toast.success("Invoice paid");
+      celebrate();
       await refresh();
     } catch (err) {
       toast.error(errorMessage(err, "Could not pay invoice."));
