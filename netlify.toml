@@ -3,5 +3,11 @@
   command = "npm run build"
   publish = ".next"
 
+[build.environment]
+  # The repo's .nvmrc (Node 22) lives at the repo root, outside this base
+  # directory, so Netlify's Node-version autodetection won't find it — pin
+  # explicitly instead, matching what the project actually requires.
+  NODE_VERSION = "22"
+
 [[plugins]]
   package = "@netlify/plugin-nextjs"
