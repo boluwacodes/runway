@@ -91,6 +91,8 @@ export default function AboutPage() {
                 on the list — see{" "}
                 <Link
                   href="https://github.com/boluwacodes/runway"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="accent-text hover:underline"
                 >
                   the README
@@ -104,6 +106,8 @@ export default function AboutPage() {
                 owed it.{" "}
                 <a
                   href="https://github.com/boluwacodes/runway"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="accent-text hover:underline"
                 >
                   Read the source
