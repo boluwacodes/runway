@@ -141,6 +141,42 @@ fn rejects_funding_a_non_open_invoice() {
 }
 
 #[test]
+fn rejects_funding_by_the_payee_or_the_debtor() {
+    let env = Env::default();
+    let client = setup(&env);
+    let (token, token_client, asset) = create_token(&env);
+    let payee = Address::generate(&env);
+    let debtor = Address::generate(&env);
+    asset.mint(&payee, &1_000_000);
+    asset.mint(&debtor, &1_000_000);
+
+    let id = client.create_invoice(
+        &payee,
+        &debtor,
+        &token,
+        &100_000,
+        &9_500,
+        &(env.ledger().timestamp() + 30 * DAY),
+    );
+
+    assert_eq!(
+        client.try_fund_invoice(&id, &payee),
+        Err(Ok(ContractError::NotAuthorized))
+    );
+    assert_eq!(
+        client.try_fund_invoice(&id, &debtor),
+        Err(Ok(ContractError::NotAuthorized))
+    );
+
+    // Nothing moved and the invoice is still open for a real funder.
+    assert_eq!(token_client.balance(&payee), 1_000_000);
+    assert_eq!(token_client.balance(&debtor), 1_000_000);
+    let invoice = client.get_invoice(&id);
+    assert_eq!(invoice.status, InvoiceStatus::Open);
+    assert_eq!(invoice.funder, None);
+}
+
+#[test]
 fn debtor_pays_a_funded_invoice_and_the_funder_collects_full_face_value() {
     let env = Env::default();
     let client = setup(&env);
