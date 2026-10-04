@@ -50,7 +50,7 @@ export interface Invoice {
 
 // soroban-sdk maps struct field names verbatim (snake_case) into the
 // decoded object's keys — this is the raw shape before we camelCase it.
-interface RawInvoice {
+export interface RawInvoice {
   id: bigint;
   payee: string;
   debtor: string;
@@ -66,7 +66,7 @@ interface RawInvoice {
   status: number;
 }
 
-function parseInvoice(raw: RawInvoice): Invoice {
+export function parseInvoice(raw: RawInvoice): Invoice {
   return {
     id: raw.id,
     payee: raw.payee,
