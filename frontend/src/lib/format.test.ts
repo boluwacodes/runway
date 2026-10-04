@@ -7,6 +7,7 @@ import {
   formatXlm,
   shortenAddress,
   xlmToStroops,
+  AmountError,
 } from "./format";
 
 // #2: this frontend had no test suite at all. These cover the pure
@@ -45,13 +46,19 @@ describe("xlmToStroops", () => {
     expect(xlmToStroops("0.1")).toBe(1_000_000n);
   });
 
-  it("truncates (does not round) a fractional part longer than 7 decimals", () => {
-    expect(xlmToStroops("1.00000009")).toBe(10_000_000n);
+  it("accepts the smallest representable amount and a leading-dot fraction", () => {
+    expect(xlmToStroops("0.0000001")).toBe(1n);
+    expect(xlmToStroops(".5")).toBe(5_000_000n);
   });
 
-  it("treats a bare decimal point as zero", () => {
-    expect(xlmToStroops(".")).toBe(0n);
-  });
+  // #69: these used to be silently truncated, negated or thrown as a raw
+  // SyntaxError from BigInt — now they're all a clear AmountError.
+  it.each(["1.00000009", "-5", "1e3", "1.2.3", ".", "", "abc", "1,000"])(
+    "rejects %j with an AmountError",
+    (input) => {
+      expect(() => xlmToStroops(input)).toThrow(AmountError);
+    },
+  );
 
   it("is the exact inverse of formatXlm for typical amounts", () => {
     for (const stroops of [0n, 1n, 10_000_000n, 95_000_0000n, 4_800_0000000n]) {
