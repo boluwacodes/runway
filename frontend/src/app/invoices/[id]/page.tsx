@@ -27,7 +27,7 @@ import {
   formatDaysUntilDue,
   formatXlm,
 } from "@/lib/format";
-import { STATUS_LABEL, STATUS_TONE } from "@/lib/invoice-status";
+import { STATUS_LABEL, STATUS_TONE, dueStatusLabel } from "@/lib/invoice-status";
 import { WalletError } from "@/lib/wallet";
 
 /** Route params are arbitrary strings — only accept a non-negative integer as an invoice id. */
@@ -208,7 +208,9 @@ function InvoiceDetail({
           </div>
           <div>
             <p className="text-xs text-muted">Status</p>
-            <p className="mt-1 font-medium">{formatDaysUntilDue(invoice.dueDate)}</p>
+            <p className="mt-1 font-medium">
+              {dueStatusLabel(invoice.status, invoice.dueDate, formatDaysUntilDue)}
+            </p>
           </div>
           <div>
             <p className="text-xs text-muted">Debtor history</p>

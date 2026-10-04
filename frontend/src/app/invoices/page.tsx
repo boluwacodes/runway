@@ -26,7 +26,7 @@ import {
   shortenAddress,
   xlmToStroops,
 } from "@/lib/format";
-import { STATUS_LABEL, STATUS_TONE } from "@/lib/invoice-status";
+import { STATUS_LABEL, STATUS_TONE, dueStatusLabel } from "@/lib/invoice-status";
 import { WalletError } from "@/lib/wallet";
 
 export default function InvoicesPage() {
@@ -285,7 +285,7 @@ export default function InvoicesPage() {
                         </p>
                         <p className="text-xs text-muted">
                           {bpsToPercent(invoice.advanceBps)}% advance &middot;{" "}
-                          {formatDaysUntilDue(invoice.dueDate)}
+                          {dueStatusLabel(invoice.status, invoice.dueDate, formatDaysUntilDue)}
                         </p>
                         <div className="mt-4 flex items-center justify-between text-xs text-muted">
                           <span>payee {shortenAddress(invoice.payee)}</span>
