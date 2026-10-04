@@ -20,6 +20,7 @@ import {
   submitSignedTx,
 } from "@/lib/contract";
 import { celebrate } from "@/lib/confetti";
+import { optional } from "@/lib/optional";
 import {
   assetLabel,
   bpsToPercent,
@@ -58,7 +59,9 @@ export default function InvoiceDetailPage() {
     try {
       const loaded = await getInvoice(invoiceId);
       setInvoice(loaded);
-      setDebtorLateCount(await latePaymentCount(loaded.debtor));
+      // Supplementary: if this read fails the cell just shows "—"; it must
+      // not replace an invoice that loaded fine with the error card.
+      setDebtorLateCount(await optional(() => latePaymentCount(loaded.debtor)));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not load this invoice.");
     }
