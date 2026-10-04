@@ -18,7 +18,15 @@ const CONTRACT_ID = process.env.NEXT_PUBLIC_RUNWAY_CONTRACT_ID ?? "";
 export const NATIVE_TOKEN_ID = process.env.NEXT_PUBLIC_NATIVE_TOKEN_ID ?? "";
 
 export const server = new rpc.Server(RPC_URL);
-const contract = new Contract(CONTRACT_ID);
+// Constructed lazily, on first actual use, rather than at module scope:
+// Contract()'s constructor throws synchronously on an empty/invalid
+// address, and Next prerenders pages that import this module during
+// `next build` — a missing env var should only fail a real contract call
+// at runtime, not the build itself.
+let _contract: Contract | undefined;
+function getContract(): Contract {
+  return (_contract ??= new Contract(CONTRACT_ID));
+}
 
 export enum InvoiceStatus {
   Open = 0,
@@ -82,7 +90,7 @@ async function readCall<T>(method: string, args: xdr.ScVal[]): Promise<T> {
     fee: BASE_FEE,
     networkPassphrase: NETWORK_PASSPHRASE,
   })
-    .addOperation(contract.call(method, ...args))
+    .addOperation(getContract().call(method, ...args))
     .setTimeout(30)
     .build();
 
@@ -115,7 +123,7 @@ async function buildTx(sourcePublicKey: string, method: string, args: xdr.ScVal[
     fee: BASE_FEE,
     networkPassphrase: NETWORK_PASSPHRASE,
   })
-    .addOperation(contract.call(method, ...args))
+    .addOperation(getContract().call(method, ...args))
     .setTimeout(60)
     .build();
 
