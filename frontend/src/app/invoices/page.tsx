@@ -23,6 +23,7 @@ import {
   bpsToPercent,
   formatDaysUntilDue,
   formatXlm,
+  AmountError,
   shortenAddress,
   xlmToStroops,
 } from "@/lib/format";
@@ -306,6 +307,7 @@ export default function InvoicesPage() {
 }
 
 function errorMessage(err: unknown, fallback: string): string {
-  if (err instanceof WalletError || err instanceof ContractCallError) return err.message;
+  if (err instanceof WalletError || err instanceof ContractCallError || err instanceof AmountError)
+    return err.message;
   return fallback;
 }
