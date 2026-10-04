@@ -18,6 +18,7 @@ import {
   ContractCallError,
 } from "@/lib/contract";
 import { fetchInvoicesFromBackend } from "@/lib/backend";
+import { loadInvoicesSettled } from "@/lib/load-invoices";
 import {
   assetLabel,
   bpsToPercent,
@@ -41,6 +42,7 @@ export default function InvoicesPage() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [total, setTotal] = useState<bigint | null>(null);
   const [source, setSource] = useState<"indexer" | "chain" | null>(null);
+  const [failedCount, setFailedCount] = useState(0);
 
   const [debtor, setDebtor] = useState("");
   const [amount, setAmount] = useState("1000");
@@ -63,14 +65,20 @@ export default function InvoicesPage() {
       const fromBackend = await fetchInvoicesFromBackend();
       if (fromBackend) {
         setInvoices(fromBackend.sort((a, b) => (a.id < b.id ? 1 : -1)));
+        setFailedCount(0);
         setSource("indexer");
         return;
       }
 
       // Backend unset or unreachable — fall back to on-chain discovery.
+      // Each invoice loads independently: one failed read keeps the rest.
       const ids = await discoverInvoiceIds();
-      const loaded = await Promise.all(ids.map((id) => getInvoice(id)));
-      setInvoices(loaded.sort((a, b) => (a.id < b.id ? 1 : -1)));
+      const { invoices: loaded, failed } = await loadInvoicesSettled(ids, getInvoice);
+      if (loaded.length === 0 && failed > 0) {
+        throw new Error("Could not load invoices from the network. Try again shortly.");
+      }
+      setInvoices(loaded);
+      setFailedCount(failed);
       setSource("chain");
     } catch (err) {
       setLoadError(err instanceof Error ? err.message : "Could not load invoices.");
@@ -244,6 +252,8 @@ export default function InvoicesPage() {
               {source && (
                 <span className="text-xs text-muted">
                   {source === "indexer" ? "via indexer" : "via on-chain event log"}
+                  {failedCount > 0 &&
+                    ` · ${failedCount} invoice${failedCount === 1 ? "" : "s"} couldn't be loaded`}
                 </span>
               )}
             </div>
