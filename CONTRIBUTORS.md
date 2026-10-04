@@ -10,3 +10,4 @@ Thanks to everyone who has contributed to Runway.
 - [@abayomicornelius](https://github.com/abayomicornelius)
 - [@abayomiwav](https://github.com/abayomiwav)
 - [@circleboyslimited](https://github.com/circleboyslimited)
+- [@miraclesonly](https://github.com/miraclesonly)
