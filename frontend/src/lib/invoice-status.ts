@@ -13,3 +13,19 @@ export const STATUS_LABEL = {
   [InvoiceStatus.Paid]: "Paid",
   [InvoiceStatus.Cancelled]: "Cancelled",
 };
+
+/**
+ * The due-date line shown next to an invoice. Only Open and Funded invoices
+ * are still waiting on the debtor, so only they get a countdown; showing
+ * "12d overdue" on an invoice that was paid on time reads as a delinquency
+ * that never happened.
+ */
+export function dueStatusLabel(
+  status: InvoiceStatus,
+  dueDate: bigint,
+  formatCountdown: (dueDate: bigint) => string,
+): string {
+  if (status === InvoiceStatus.Paid) return "settled";
+  if (status === InvoiceStatus.Cancelled) return "cancelled";
+  return formatCountdown(dueDate);
+}
