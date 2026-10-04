@@ -181,9 +181,18 @@ export async function submitSignedTx(signedXdr: string): Promise<void> {
     throw new ContractCallError(`Transaction rejected: ${JSON.stringify(sent.errorResult)}`);
   }
 
+  const POLL_INTERVAL_MS = 1500;
+  const MAX_POLL_ATTEMPTS = 20; // ~30s — Stellar settlement is ~5s; this is a generous ceiling, not a tight budget.
+
   let result = await server.getTransaction(sent.hash);
+  let attempts = 0;
   while (result.status === "NOT_FOUND") {
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    if (++attempts >= MAX_POLL_ATTEMPTS) {
+      throw new ContractCallError(
+        "Transaction status is still unknown after waiting — it may still land. Check your wallet's activity before retrying.",
+      );
+    }
+    await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
     result = await server.getTransaction(sent.hash);
   }
   if (result.status !== "SUCCESS") {
