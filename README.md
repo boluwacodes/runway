@@ -24,7 +24,9 @@ transfer to clear — a Stellar transaction settles in about five seconds
 for a fraction of a cent.
 
 It runs on Stellar's public testnet today. Contract logic and tests are
-real; mainnet is the next step once the model's been exercised more.
+real; mainnet is the next step once the model's been exercised more. See
+[docs/testnet-to-mainnet.md](docs/testnet-to-mainnet.md) for exactly what
+that move involves.
 
 ## A concrete example
 
