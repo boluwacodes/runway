@@ -83,6 +83,26 @@ fn rejects_invalid_invoice_parameters() {
 }
 
 #[test]
+fn rejects_invoices_whose_advance_rounds_to_zero() {
+    let env = Env::default();
+    let client = setup(&env);
+    let (token, _, _) = create_token(&env);
+    let payee = Address::generate(&env);
+    let debtor = Address::generate(&env);
+    let future = env.ledger().timestamp() + 30 * DAY;
+
+    // 1 * 9_500 / 10_000 == 0: a funder would advance nothing.
+    assert_eq!(
+        client.try_create_invoice(&payee, &debtor, &token, &1, &9_500, &future),
+        Err(Ok(ContractError::InvalidParams))
+    );
+    // 2 * 5_000 / 10_000 == 1: the smallest non-zero advance is allowed.
+    assert!(client
+        .try_create_invoice(&payee, &debtor, &token, &2, &5_000, &future)
+        .is_ok());
+}
+
+#[test]
 fn funds_an_invoice_and_advances_the_payee_immediately() {
     let env = Env::default();
     let client = setup(&env);
