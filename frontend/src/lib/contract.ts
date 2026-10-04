@@ -217,34 +217,66 @@ export async function discoverInvoiceIds(lookbackLedgers = 9_000, limit = 50): P
   const latest = await server.getLatestLedger();
   const startLedger = Math.max(latest.sequence - lookbackLedgers, 1);
 
-  const fetchEvents = (from: number) =>
-    server.getEvents({
-      startLedger: from,
-      filters: [
-        {
-          type: "contract",
-          contractIds: [CONTRACT_ID],
-          topics: [
-            [
-              xdr.ScVal.scvSymbol("invoice").toXDR("base64"),
-              xdr.ScVal.scvSymbol("created").toXDR("base64"),
-            ],
-          ],
-        },
+  const filters: rpc.Api.EventFilter[] = [
+    {
+      type: "contract",
+      contractIds: [CONTRACT_ID],
+      topics: [
+        [
+          xdr.ScVal.scvSymbol("invoice").toXDR("base64"),
+          xdr.ScVal.scvSymbol("created").toXDR("base64"),
+        ],
       ],
-      limit,
-    });
+    },
+  ];
 
-  let res;
-  try {
-    res = await fetchEvents(startLedger);
-  } catch (err) {
-    const min = minLedgerFromRangeError(err);
-    if (min === null) throw err;
-    res = await fetchEvents(min);
+  const firstPage = async () => {
+    try {
+      return await server.getEvents({ startLedger, filters, limit: EVENT_PAGE_SIZE });
+    } catch (err) {
+      const min = minLedgerFromRangeError(err);
+      if (min === null) throw err;
+      return server.getEvents({ startLedger: min, filters, limit: EVENT_PAGE_SIZE });
+    }
+  };
+
+  return collectNewestIds(
+    async (cursor) => {
+      const res = cursor
+        ? await server.getEvents({ cursor, filters, limit: EVENT_PAGE_SIZE })
+        : await firstPage();
+      return { ids: res.events.map((e) => scValToNative(e.value) as bigint), cursor: res.cursor };
+    },
+    limit,
+    EVENT_PAGE_SIZE,
+  );
+}
+
+const EVENT_PAGE_SIZE = 100;
+const MAX_EVENT_PAGES = 20;
+
+/**
+ * getEvents returns events oldest-first from `startLedger`, so a single
+ * request with `limit: 50` yields the 50 *oldest* creations in the window,
+ * not the newest. Page forward with the RPC cursor until a short page, keep
+ * only the newest `limit` ids, and return them newest-first. Capped at
+ * MAX_EVENT_PAGES so a very busy window can't loop unbounded.
+ */
+export async function collectNewestIds(
+  fetchPage: (cursor?: string) => Promise<{ ids: bigint[]; cursor: string }>,
+  limit: number,
+  pageSize: number,
+  maxPages = MAX_EVENT_PAGES,
+): Promise<bigint[]> {
+  let newest: bigint[] = [];
+  let cursor: string | undefined;
+  for (let page = 0; page < maxPages; page++) {
+    const { ids, cursor: next } = await fetchPage(cursor);
+    newest = [...newest, ...ids].slice(-limit);
+    if (ids.length < pageSize) break;
+    cursor = next;
   }
-
-  return res.events.map((e) => scValToNative(e.value) as bigint).reverse();
+  return newest.reverse();
 }
 
 function minLedgerFromRangeError(err: unknown): number | null {
