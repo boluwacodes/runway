@@ -1,3 +1,4 @@
+import { createHash, timingSafeEqual } from "node:crypto";
 import type { NextFunction, Request, Response } from "express";
 
 // #1: POST /sync triggers a full contract resync (one RPC read per invoice)
@@ -12,6 +13,17 @@ export interface SyncGuardOptions {
   windowMs?: number;
   max?: number;
   now?: () => number;
+}
+
+/**
+ * Constant-time secret comparison. Hashing both sides first gives equal-length
+ * buffers (timingSafeEqual requires that) and avoids leaking the key's length.
+ */
+export function apiKeyMatches(provided: string | undefined, expected: string): boolean {
+  if (provided === undefined) return false;
+  const a = createHash("sha256").update(provided).digest();
+  const b = createHash("sha256").update(expected).digest();
+  return timingSafeEqual(a, b);
 }
 
 /**
@@ -31,7 +43,7 @@ export function createSyncGuard({
   const hitsByIp = new Map<string, number[]>();
 
   return function syncAuthAndRateLimit(req: Request, res: Response, next: NextFunction): void {
-    if (apiKey && req.header("x-api-key") !== apiKey) {
+    if (apiKey && !apiKeyMatches(req.header("x-api-key"), apiKey)) {
       res.status(401).json({ error: "unauthorized" });
       return;
     }
