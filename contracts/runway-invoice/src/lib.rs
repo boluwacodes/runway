@@ -167,6 +167,12 @@ impl RunwayInvoiceContract {
         if invoice.status != InvoiceStatus::Open {
             return Err(ContractError::InvoiceNotOpen);
         }
+        // Financing has to come from a third party: a payee "funding" itself
+        // is a no-op transfer that still marks the invoice financed, and a
+        // debtor funding its own debt pays 95% and settles to itself.
+        if funder == invoice.payee || funder == invoice.debtor {
+            return Err(ContractError::NotAuthorized);
+        }
 
         let advance_amount = invoice.face_value * (invoice.advance_bps as i128) / BPS_DENOMINATOR;
         token::Client::new(&env, &invoice.token).transfer(&funder, &invoice.payee, &advance_amount);
