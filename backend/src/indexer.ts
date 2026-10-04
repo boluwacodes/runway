@@ -79,9 +79,17 @@ export async function syncOnce(): Promise<{ synced: number; total: number }> {
   let synced = 0;
   for (let i = 0; i < ids.length; i += BATCH_SIZE) {
     const batch = ids.slice(i, i + BATCH_SIZE);
-    const invoices = await Promise.all(batch.map((id) => fetchInvoice(id)));
+    // One bad id (a transient RPC hiccup) shouldn't cost its batch-mates —
+    // settle each fetch independently instead of letting Promise.all reject
+    // the whole batch on the first failure.
+    const results = await Promise.allSettled(batch.map((id) => fetchInvoice(id)));
     const now = Date.now();
-    for (const inv of invoices) {
+    for (const result of results) {
+      if (result.status === "rejected") {
+        console.error("[indexer] failed to fetch an invoice, skipping:", result.reason);
+        continue;
+      }
+      const inv = result.value;
       const row: InvoiceRow = {
         id: inv.id.toString(),
         payee: inv.payee,
