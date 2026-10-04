@@ -23,7 +23,7 @@ if (!CONTRACT_ID) {
 const server = new rpc.Server(RPC_URL);
 const contract = new Contract(CONTRACT_ID);
 
-interface RawInvoice {
+export interface RawInvoice {
   id: bigint;
   payee: string;
   debtor: string;
@@ -71,8 +71,19 @@ async function fetchTotalInvoices(): Promise<bigint> {
  * entirely — no event log involved, so there's no searchable-window limit
  * to hit. It also means this indexer never misses an invoice, however old.
  */
-export async function syncOnce(): Promise<{ synced: number; total: number }> {
-  const total = await fetchTotalInvoices();
+interface SyncOnceOptions {
+  fetchTotal?: () => Promise<bigint>;
+  fetchOne?: (id: bigint) => Promise<RawInvoice>;
+}
+
+// fetchTotal/fetchOne are injectable (default to the real RPC-backed
+// fetchers) so tests can exercise the batching/upsert/error-isolation logic
+// without a live network — see indexer.test.ts.
+export async function syncOnce({
+  fetchTotal = fetchTotalInvoices,
+  fetchOne = fetchInvoice,
+}: SyncOnceOptions = {}): Promise<{ synced: number; total: number }> {
+  const total = await fetchTotal();
   const ids = Array.from({ length: Number(total) }, (_, i) => BigInt(i + 1));
 
   const BATCH_SIZE = 10;
@@ -82,7 +93,7 @@ export async function syncOnce(): Promise<{ synced: number; total: number }> {
     // One bad id (a transient RPC hiccup) shouldn't cost its batch-mates —
     // settle each fetch independently instead of letting Promise.all reject
     // the whole batch on the first failure.
-    const results = await Promise.allSettled(batch.map((id) => fetchInvoice(id)));
+    const results = await Promise.allSettled(batch.map((id) => fetchOne(id)));
     const now = Date.now();
     for (const result of results) {
       if (result.status === "rejected") {
