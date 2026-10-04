@@ -15,8 +15,19 @@ app.get("/health", (_req, res) => {
   res.json({ ok: true });
 });
 
-app.get("/invoices", (_req, res) => {
-  res.json(listInvoices());
+app.get("/invoices", (req, res) => {
+  const limit = req.query.limit !== undefined ? Number(req.query.limit) : undefined;
+  const offset = req.query.offset !== undefined ? Number(req.query.offset) : undefined;
+
+  if (
+    (limit !== undefined && !Number.isFinite(limit)) ||
+    (offset !== undefined && !Number.isFinite(offset))
+  ) {
+    res.status(400).json({ error: "limit and offset must be numbers" });
+    return;
+  }
+
+  res.json(listInvoices({ limit, offset }));
 });
 
 app.get("/invoices/:id", (req, res) => {

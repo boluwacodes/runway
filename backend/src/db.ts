@@ -59,10 +59,39 @@ export function upsertInvoice(row: InvoiceRow): void {
   upsertStmt.run({ ...row, funder: row.funder ?? null });
 }
 
-export function listInvoices(): InvoiceRow[] {
-  return db
-    .prepare("SELECT * FROM invoices ORDER BY CAST(id AS INTEGER) DESC")
-    .all() as unknown as InvoiceRow[];
+export const DEFAULT_PAGE_SIZE = 50;
+export const MAX_PAGE_SIZE = 200;
+
+export interface ListInvoicesOptions {
+  limit?: number;
+  offset?: number;
+}
+
+export interface ListInvoicesResult {
+  invoices: InvoiceRow[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+// #4: GET /invoices returned the entire table on every call — fine with a
+// handful of rows, but it grows unbounded with the indexer and will
+// eventually ship a multi-MB response (and a full table scan) for a single
+// request. Caps the page size and reports `total` so callers can page
+// through the rest instead of always requesting everything.
+export function listInvoices(options: ListInvoicesOptions = {}): ListInvoicesResult {
+  const limit = Math.min(Math.max(1, options.limit ?? DEFAULT_PAGE_SIZE), MAX_PAGE_SIZE);
+  const offset = Math.max(0, options.offset ?? 0);
+
+  const invoices = db
+    .prepare("SELECT * FROM invoices ORDER BY CAST(id AS INTEGER) DESC LIMIT ? OFFSET ?")
+    .all(limit, offset) as unknown as InvoiceRow[];
+
+  const { total } = db.prepare("SELECT COUNT(*) as total FROM invoices").get() as {
+    total: number;
+  };
+
+  return { invoices, total, limit, offset };
 }
 
 export function getInvoiceRow(id: string): InvoiceRow | undefined {

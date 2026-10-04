@@ -10,17 +10,43 @@ describe("db", () => {
     upsertInvoice(makeRow({ id: "1", status: 0 }));
     upsertInvoice(makeRow({ id: "2", status: 0 }));
 
-    const rows = listInvoices();
-    expect(rows.map((r) => r.id)).toEqual(["2", "1"]);
+    const { invoices, total } = listInvoices();
+    expect(invoices.map((r) => r.id)).toEqual(["2", "1"]);
+    expect(total).toBe(2);
   });
 
   it("re-upserting the same id updates in place instead of duplicating", () => {
     upsertInvoice(makeRow({ id: "1", status: 0 }));
     upsertInvoice(makeRow({ id: "1", status: 2 }));
 
-    const rows = listInvoices();
-    expect(rows).toHaveLength(1);
-    expect(rows[0].status).toBe(2);
+    const { invoices } = listInvoices();
+    expect(invoices).toHaveLength(1);
+    expect(invoices[0].status).toBe(2);
+  });
+
+  it("paginates with limit/offset and reports the full total (#4)", () => {
+    for (let i = 1; i <= 5; i++) {
+      upsertInvoice(makeRow({ id: String(i), status: 0 }));
+    }
+
+    const page1 = listInvoices({ limit: 2, offset: 0 });
+    expect(page1.invoices.map((r) => r.id)).toEqual(["5", "4"]);
+    expect(page1.total).toBe(5);
+    expect(page1.limit).toBe(2);
+
+    const page2 = listInvoices({ limit: 2, offset: 2 });
+    expect(page2.invoices.map((r) => r.id)).toEqual(["3", "2"]);
+    expect(page2.total).toBe(5);
+  });
+
+  it("caps an oversized limit at MAX_PAGE_SIZE instead of returning everything", () => {
+    for (let i = 1; i <= 3; i++) {
+      upsertInvoice(makeRow({ id: String(i), status: 0 }));
+    }
+
+    const { invoices, limit } = listInvoices({ limit: 1_000_000 });
+    expect(limit).toBe(200);
+    expect(invoices).toHaveLength(3);
   });
 
   it("getInvoiceRow returns undefined for an id that was never synced", () => {
