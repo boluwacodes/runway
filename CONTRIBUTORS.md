@@ -14,3 +14,4 @@ Thanks to everyone who has contributed to Runway.
 - [@boluwacodes](https://github.com/boluwacodes)
 - [@presidoclintonbased-alt](https://github.com/presidoclintonbased-alt)
 - [@richardtoms100](https://github.com/richardtoms100)
+- [@Smoothjane](https://github.com/Smoothjane)
