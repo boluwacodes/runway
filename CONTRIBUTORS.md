@@ -7,3 +7,4 @@ Thanks to everyone who has contributed to Runway.
 - [@chonilius](https://github.com/chonilius)
 - [@prodbycorne](https://github.com/prodbycorne)
 - [@Temi-suwa18](https://github.com/Temi-suwa18)
+- [@abayomicornelius](https://github.com/abayomicornelius)
