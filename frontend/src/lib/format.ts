@@ -8,10 +8,24 @@ export function formatXlm(stroops: bigint): string {
   return `${whole}.${fracStr}`;
 }
 
+/** Thrown for amounts that can't be represented exactly in stroops. */
+export class AmountError extends Error {}
+
+// Non-negative decimal with at most 7 fractional digits (1 stroop = 0.0000001):
+// "1", "1.5", ".5", "0.0000001". Rejects "-1", "1e3", "1.2.3", "." and
+// "1.00000001" — the last one used to be silently truncated.
+const AMOUNT_PATTERN = /^(?=\.?\d)\d*(\.\d{1,7})?$/;
+
 export function xlmToStroops(xlm: string): bigint {
-  const [whole, frac = ""] = xlm.trim().split(".");
+  const trimmed = xlm.trim();
+  if (!AMOUNT_PATTERN.test(trimmed)) {
+    throw new AmountError(
+      "Enter a positive amount with at most 7 decimal places (e.g. 1000 or 12.5).",
+    );
+  }
+  const [whole, frac = ""] = trimmed.split(".");
   const paddedFrac = (frac + "0000000").slice(0, 7);
-  return BigInt(whole || "0") * STROOPS_PER_XLM + BigInt(paddedFrac || "0");
+  return BigInt(whole || "0") * STROOPS_PER_XLM + BigInt(paddedFrac);
 }
 
 export function shortenAddress(address: string, chars = 4): string {
