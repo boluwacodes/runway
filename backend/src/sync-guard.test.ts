@@ -1,11 +1,12 @@
+import type { Request, Response } from "express";
 import { describe, expect, it, vi } from "vitest";
-import { createSyncGuard } from "./sync-guard";
+import { apiKeyMatches, createSyncGuard } from "./sync-guard";
 
 function mockReqRes(headers: Record<string, string> = {}, ip = "1.2.3.4") {
   const req = {
     ip,
     header: (name: string) => headers[name.toLowerCase()],
-  } as any;
+  } as unknown as Request;
   const res = {
     statusCode: 200,
     body: undefined as unknown,
@@ -17,7 +18,7 @@ function mockReqRes(headers: Record<string, string> = {}, ip = "1.2.3.4") {
       this.body = payload;
       return this;
     },
-  } as any;
+  } as unknown as Response & { statusCode: number; body: unknown };
   const next = vi.fn();
   return { req, res, next };
 }
@@ -54,7 +55,7 @@ describe("sync-guard (#1)", () => {
   });
 
   it("rate-limits a single IP after the configured burst", () => {
-    let now = 0;
+    const now = 0;
     const guard = createSyncGuard({ max: 3, windowMs: 60_000, now: () => now });
 
     for (let i = 0; i < 3; i++) {
@@ -70,7 +71,7 @@ describe("sync-guard (#1)", () => {
   });
 
   it("does not rate-limit different IPs against each other", () => {
-    let now = 0;
+    const now = 0;
     const guard = createSyncGuard({ max: 1, windowMs: 60_000, now: () => now });
 
     const first = mockReqRes({}, "1.1.1.1");
@@ -98,5 +99,32 @@ describe("sync-guard (#1)", () => {
     const afterWindow = mockReqRes();
     guard(afterWindow.req, afterWindow.res, afterWindow.next);
     expect(afterWindow.next).toHaveBeenCalledOnce();
+  });
+});
+
+describe("apiKeyMatches (#59)", () => {
+  it("accepts the exact key", () => {
+    expect(apiKeyMatches("secret-key", "secret-key")).toBe(true);
+  });
+
+  it("rejects a wrong key of the same length", () => {
+    expect(apiKeyMatches("secret-kez", "secret-key")).toBe(false);
+  });
+
+  it("rejects keys of a different length without throwing", () => {
+    expect(apiKeyMatches("secret", "secret-key")).toBe(false);
+    expect(apiKeyMatches("secret-key-but-longer", "secret-key")).toBe(false);
+  });
+
+  it("rejects a missing header", () => {
+    expect(apiKeyMatches(undefined, "secret-key")).toBe(false);
+  });
+
+  it("is what the guard uses: a same-length wrong key is a 401", () => {
+    const guard = createSyncGuard({ apiKey: "secret" });
+    const { req, res, next } = mockReqRes({ "x-api-key": "secreT" });
+    guard(req, res, next);
+    expect(next).not.toHaveBeenCalled();
+    expect(res.statusCode).toBe(401);
   });
 });
