@@ -4,9 +4,9 @@
   "description": "Read-only indexer/API for the Runway invoice contract — never holds keys, never signs transactions.",
   "license": "MIT",
   "scripts": {
-    "dev": "tsx --env-file=.env watch src/index.ts",
+    "dev": "tsx --env-file=.env watch src/server.ts",
     "build": "tsc -p tsconfig.json",
-    "start": "node --env-file=.env dist/index.js",
+    "start": "node --env-file=.env dist/server.js",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "lint": "eslint src",
