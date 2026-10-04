@@ -128,6 +128,15 @@ impl RunwayInvoiceContract {
         if advance_bps == 0 || advance_bps > 10_000 {
             return Err(ContractError::InvalidParams);
         }
+        // fund_invoice rounds the advance down; an invoice whose advance
+        // would round to zero lets a funder take the whole face value for
+        // free. (checked_mul overflow means "huge", which is never zero.)
+        let advance_rounds_to_zero = face_value
+            .checked_mul(advance_bps as i128)
+            .is_some_and(|scaled| scaled < BPS_DENOMINATOR);
+        if advance_rounds_to_zero {
+            return Err(ContractError::InvalidParams);
+        }
         if due_date <= env.ledger().timestamp() {
             return Err(ContractError::InvalidParams);
         }
