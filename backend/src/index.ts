@@ -31,6 +31,10 @@ app.get("/invoices", (req, res) => {
 });
 
 app.get("/invoices/:id", (req, res) => {
+  if (!/^\d+$/.test(req.params.id)) {
+    res.status(400).json({ error: "id must be a non-negative integer" });
+    return;
+  }
   const row = getInvoiceRow(req.params.id);
   if (!row) {
     res.status(404).json({ error: "not indexed yet — it may be brand new, try /sync" });
