@@ -23,8 +23,38 @@
 //! nothing on-chain can prevent.
 
 use soroban_sdk::{
-    contract, contracterror, contractimpl, contracttype, symbol_short, token, Address, Env,
+    contract, contracterror, contractevent, contractimpl, contracttype, token, Address, Env,
 };
+
+// #5: replaces the deprecated raw env.events().publish() calls below with
+// #[contractevent] structs, which also get included in the contract spec so
+// downstream tooling can generate bindings for them. data_format =
+// "single-value" keeps each event's data payload as the bare invoice id,
+// matching exactly what the old publish() calls sent (no behavioral change
+// for existing event consumers, just no more deprecation warnings).
+#[contractevent(topics = ["invoice", "created"], data_format = "single-value")]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct InvoiceCreated {
+    pub invoice_id: u64,
+}
+
+#[contractevent(topics = ["invoice", "funded"], data_format = "single-value")]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct InvoiceFunded {
+    pub invoice_id: u64,
+}
+
+#[contractevent(topics = ["invoice", "paid"], data_format = "single-value")]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct InvoicePaid {
+    pub invoice_id: u64,
+}
+
+#[contractevent(topics = ["invoice", "cancel"], data_format = "single-value")]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct InvoiceCancelled {
+    pub invoice_id: u64,
+}
 
 #[contracttype]
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -122,8 +152,7 @@ impl RunwayInvoiceContract {
             .persistent()
             .set(&DataKey::Invoice(id), &invoice);
 
-        env.events()
-            .publish((symbol_short!("invoice"), symbol_short!("created")), id);
+        InvoiceCreated { invoice_id: id }.publish(&env);
 
         Ok(id)
     }
@@ -148,10 +177,7 @@ impl RunwayInvoiceContract {
             .persistent()
             .set(&DataKey::Invoice(invoice_id), &invoice);
 
-        env.events().publish(
-            (symbol_short!("invoice"), symbol_short!("funded")),
-            invoice_id,
-        );
+        InvoiceFunded { invoice_id }.publish(&env);
 
         Ok(())
     }
@@ -188,10 +214,7 @@ impl RunwayInvoiceContract {
             .persistent()
             .set(&DataKey::Invoice(invoice_id), &invoice);
 
-        env.events().publish(
-            (symbol_short!("invoice"), symbol_short!("paid")),
-            invoice_id,
-        );
+        InvoicePaid { invoice_id }.publish(&env);
 
         Ok(())
     }
@@ -215,10 +238,7 @@ impl RunwayInvoiceContract {
             .persistent()
             .set(&DataKey::Invoice(invoice_id), &invoice);
 
-        env.events().publish(
-            (symbol_short!("invoice"), symbol_short!("cancel")),
-            invoice_id,
-        );
+        InvoiceCancelled { invoice_id }.publish(&env);
 
         Ok(())
     }
