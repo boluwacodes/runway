@@ -7,7 +7,10 @@ interface FundingChartProps {
   unfinanced: number;
 }
 
-const COLORS = ["#a3e635", "#39493f"];
+// Theme CSS variables, not hardcoded hex — this chart needs to still read
+// correctly after the navbar's light/dark toggle, not just in the dark
+// theme these values were originally tuned for.
+const COLORS = ["var(--accent)", "var(--border-strong)"];
 
 export function FundingChart({ financed, unfinanced }: FundingChartProps) {
   const data = [
@@ -33,11 +36,11 @@ export function FundingChart({ financed, unfinanced }: FundingChartProps) {
           </Pie>
           <Tooltip
             contentStyle={{
-              background: "#101512",
-              border: "1px solid #39493f",
+              background: "var(--card)",
+              border: "1px solid var(--border-strong)",
               borderRadius: 0,
               fontSize: 12,
-              color: "#eef2ef",
+              color: "var(--foreground)",
             }}
           />
         </PieChart>
