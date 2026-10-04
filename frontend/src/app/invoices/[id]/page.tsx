@@ -27,20 +27,8 @@ import {
   formatDaysUntilDue,
   formatXlm,
 } from "@/lib/format";
+import { STATUS_LABEL, STATUS_TONE } from "@/lib/invoice-status";
 import { WalletError } from "@/lib/wallet";
-
-const STATUS_TONE = {
-  [InvoiceStatus.Open]: "gold" as const,
-  [InvoiceStatus.Funded]: "green" as const,
-  [InvoiceStatus.Paid]: "blue" as const,
-  [InvoiceStatus.Cancelled]: "rose" as const,
-};
-const STATUS_LABEL = {
-  [InvoiceStatus.Open]: "Open",
-  [InvoiceStatus.Funded]: "Funded",
-  [InvoiceStatus.Paid]: "Paid",
-  [InvoiceStatus.Cancelled]: "Cancelled",
-};
 
 /** Route params are arbitrary strings — only accept a non-negative integer as an invoice id. */
 function parseInvoiceId(raw: string): bigint | null {

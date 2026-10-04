@@ -9,7 +9,6 @@ import { Button, Card, Badge, EmptyState } from "@/components/ui";
 import { useWallet } from "@/context/wallet-context";
 import {
   Invoice,
-  InvoiceStatus,
   NATIVE_TOKEN_ID,
   buildCreateInvoiceTx,
   discoverInvoiceIds,
@@ -27,20 +26,8 @@ import {
   shortenAddress,
   xlmToStroops,
 } from "@/lib/format";
+import { STATUS_LABEL, STATUS_TONE } from "@/lib/invoice-status";
 import { WalletError } from "@/lib/wallet";
-
-const STATUS_TONE = {
-  [InvoiceStatus.Open]: "gold" as const,
-  [InvoiceStatus.Funded]: "green" as const,
-  [InvoiceStatus.Paid]: "blue" as const,
-  [InvoiceStatus.Cancelled]: "rose" as const,
-};
-const STATUS_LABEL = {
-  [InvoiceStatus.Open]: "Open",
-  [InvoiceStatus.Funded]: "Funded",
-  [InvoiceStatus.Paid]: "Paid",
-  [InvoiceStatus.Cancelled]: "Cancelled",
-};
 
 export default function InvoicesPage() {
   const router = useRouter();
