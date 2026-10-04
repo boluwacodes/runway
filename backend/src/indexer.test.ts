@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { db, getInvoiceRow } from "./db";
-import { syncOnce, type RawInvoice } from "./indexer";
+import { db, getInvoiceRow, upsertInvoice } from "./db";
+import { isSettledInDb, syncOnce, type RawInvoice } from "./indexer";
 
 beforeEach(() => {
   db.exec("DELETE FROM invoices");
@@ -72,5 +72,59 @@ describe("syncOnce", () => {
     });
 
     expect(result).toEqual({ synced: 0, total: 0 });
+  });
+
+  it("skips invoices already stored as Paid or Cancelled (#64)", async () => {
+    const fetched: bigint[] = [];
+    const fetchOne = async (id: bigint) => {
+      fetched.push(id);
+      return makeRawInvoice(id, { status: id === 2n ? 2 : id === 3n ? 3 : 1 });
+    };
+
+    // First pass indexes everything, including the two settled invoices.
+    await syncOnce({ fetchTotal: async () => 4n, fetchOne });
+    expect(fetched).toEqual([1n, 2n, 3n, 4n]);
+
+    // Second pass only re-reads the ones that can still change.
+    fetched.length = 0;
+    const result = await syncOnce({ fetchTotal: async () => 4n, fetchOne });
+    expect(fetched).toEqual([1n, 4n]);
+    expect(result).toEqual({ synced: 2, total: 4 });
+    expect(getInvoiceRow("2")!.status).toBe(2);
+  });
+
+  it("still fetches an id whose settled state is only known on-chain", async () => {
+    const result = await syncOnce({
+      fetchTotal: async () => 1n,
+      fetchOne: async (id) => makeRawInvoice(id, { status: 2 }),
+      isSettled: () => false,
+    });
+    expect(result).toEqual({ synced: 1, total: 1 });
+  });
+});
+
+describe("isSettledInDb", () => {
+  function row(id: string, status: number) {
+    return {
+      id,
+      payee: "GPAYEE",
+      debtor: "GDEBTOR",
+      funder: null,
+      token: "CNATIVE",
+      face_value: "1",
+      advance_bps: 9_500,
+      due_date: "1",
+      created_at: "1",
+      status,
+      synced_at: 0,
+    };
+  }
+
+  it("is true only for stored Paid/Cancelled invoices", () => {
+    upsertInvoice(row("1", 0));
+    upsertInvoice(row("2", 1));
+    upsertInvoice(row("3", 2));
+    upsertInvoice(row("4", 3));
+    expect([1n, 2n, 3n, 4n, 5n].map(isSettledInDb)).toEqual([false, false, true, true, false]);
   });
 });
