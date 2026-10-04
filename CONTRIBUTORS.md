@@ -26,3 +26,4 @@ Thanks to everyone who has contributed to Runway.
 - [@onejasonn](https://github.com/onejasonn)
 - [@floraispretty](https://github.com/floraispretty)
 - [@Derinsolababy](https://github.com/Derinsolababy)
+- [@choniszn1](https://github.com/choniszn1)
