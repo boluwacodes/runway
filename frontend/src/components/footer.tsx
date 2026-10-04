@@ -24,7 +24,13 @@ export function Footer() {
         <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-muted">
           {LINKS.map((link) =>
             link.external ? (
-              <a key={link.href} href={link.href} className="hover:text-foreground">
+              <a
+                key={link.href}
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-foreground"
+              >
                 {link.label}
               </a>
             ) : (
