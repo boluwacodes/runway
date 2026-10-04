@@ -9,7 +9,7 @@ import {
   rpc,
   xdr,
 } from "@stellar/stellar-sdk";
-import { upsertInvoice, type InvoiceRow } from "./db";
+import { getInvoiceRow, upsertInvoice, type InvoiceRow } from "./db";
 
 const RPC_URL = process.env.STELLAR_RPC_URL ?? "https://soroban-testnet.stellar.org";
 const NETWORK_PASSPHRASE =
@@ -74,6 +74,17 @@ async function fetchTotalInvoices(): Promise<bigint> {
 interface SyncOnceOptions {
   fetchTotal?: () => Promise<bigint>;
   fetchOne?: (id: bigint) => Promise<RawInvoice>;
+  isSettled?: (id: bigint) => boolean;
+}
+
+// InvoiceStatus 2 (Paid) and 3 (Cancelled) are terminal: the contract has no
+// transition out of either, so once one is indexed it never needs re-reading.
+const SETTLED_STATUSES = new Set([2, 3]);
+
+/** True when this invoice is already stored in a terminal state. */
+export function isSettledInDb(id: bigint): boolean {
+  const row = getInvoiceRow(id.toString());
+  return row !== undefined && SETTLED_STATUSES.has(row.status);
 }
 
 // fetchTotal/fetchOne are injectable (default to the real RPC-backed
@@ -82,9 +93,14 @@ interface SyncOnceOptions {
 export async function syncOnce({
   fetchTotal = fetchTotalInvoices,
   fetchOne = fetchInvoice,
+  isSettled = isSettledInDb,
 }: SyncOnceOptions = {}): Promise<{ synced: number; total: number }> {
   const total = await fetchTotal();
-  const ids = Array.from({ length: Number(total) }, (_, i) => BigInt(i + 1));
+  // Skip invoices already stored as Paid/Cancelled: re-reading them costs one
+  // RPC simulation each per tick, forever, for data that can't change.
+  const ids = Array.from({ length: Number(total) }, (_, i) => BigInt(i + 1)).filter(
+    (id) => !isSettled(id),
+  );
 
   const BATCH_SIZE = 10;
   let synced = 0;
