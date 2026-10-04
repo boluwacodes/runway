@@ -9,7 +9,6 @@ import { Button, Card, Badge, Spinner, CopyButton } from "@/components/ui";
 import { useWallet } from "@/context/wallet-context";
 import {
   Invoice,
-  InvoiceStatus,
   NATIVE_TOKEN_ID,
   ContractCallError,
   buildCancelInvoiceTx,
@@ -29,6 +28,7 @@ import {
 } from "@/lib/format";
 import { STATUS_LABEL, STATUS_TONE } from "@/lib/invoice-status";
 import { WalletError } from "@/lib/wallet";
+import { availableActions } from "@/lib/invoice-actions";
 
 /** Route params are arbitrary strings — only accept a non-negative integer as an invoice id. */
 function parseInvoiceId(raw: string): bigint | null {
@@ -172,8 +172,7 @@ function InvoiceDetail({
   onPay: () => void;
   onCancel: () => void;
 }) {
-  const isPayee = address === invoice.payee;
-  const isDebtor = address === invoice.debtor;
+  const { canFund, canPay, canCancel } = availableActions(invoice, address);
   const advanceAmount = (invoice.faceValue * BigInt(invoice.advanceBps)) / 10_000n;
 
   return (
@@ -240,22 +239,21 @@ function InvoiceDetail({
         </dl>
 
         <div className="mt-6 flex flex-wrap gap-3">
-          {invoice.status === InvoiceStatus.Open && !isPayee && (
+          {canFund && (
             <Button onClick={onFund} disabled={busy !== null}>
               {busy === "fund"
                 ? "Funding…"
                 : `Fund for ${formatXlm(advanceAmount)} ${assetLabel(invoice.token, NATIVE_TOKEN_ID)}`}
             </Button>
           )}
-          {(invoice.status === InvoiceStatus.Open || invoice.status === InvoiceStatus.Funded) &&
-            isDebtor && (
-              <Button onClick={onPay} disabled={busy !== null}>
-                {busy === "pay"
-                  ? "Paying…"
-                  : `Pay ${formatXlm(invoice.faceValue)} ${assetLabel(invoice.token, NATIVE_TOKEN_ID)}`}
-              </Button>
-            )}
-          {invoice.status === InvoiceStatus.Open && isPayee && (
+          {canPay && (
+            <Button onClick={onPay} disabled={busy !== null}>
+              {busy === "pay"
+                ? "Paying…"
+                : `Pay ${formatXlm(invoice.faceValue)} ${assetLabel(invoice.token, NATIVE_TOKEN_ID)}`}
+            </Button>
+          )}
+          {canCancel && (
             <Button variant="danger" onClick={onCancel} disabled={busy !== null}>
               {busy === "cancel" ? "Cancelling…" : "Cancel invoice"}
             </Button>
