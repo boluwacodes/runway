@@ -66,6 +66,32 @@ describe("GET /invoices", () => {
       expect(res.status).toBe(400);
     });
   });
+
+  it.each(["limit=2.5", "limit=1e2", "offset=-3", "offset=1.5", "limit="])(
+    "rejects a non-integer or negative %s with 400 (#62)",
+    async (query) => {
+      await withServer(async (base) => {
+        const res = await fetch(`${base}/invoices?${query}`);
+        expect(res.status).toBe(400);
+        expect(await res.json()).toEqual({
+          error: "limit and offset must be non-negative integers",
+        });
+      });
+    },
+  );
+
+  it("honours valid integer limit and offset", async () => {
+    upsertInvoice(makeRow({ id: "1" }));
+    upsertInvoice(makeRow({ id: "2" }));
+    upsertInvoice(makeRow({ id: "3" }));
+    await withServer(async (base) => {
+      const res = await fetch(`${base}/invoices?limit=1&offset=1`);
+      expect(res.status).toBe(200);
+      const body = await res.json();
+      expect(body.invoices.map((r: InvoiceRow) => r.id)).toEqual(["2"]);
+      expect(body).toMatchObject({ total: 3, limit: 1, offset: 1 });
+    });
+  });
 });
 
 describe("GET /invoices/:id", () => {
