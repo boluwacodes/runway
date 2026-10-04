@@ -13,15 +13,19 @@ app.get("/health", (_req, res) => {
   res.json({ ok: true });
 });
 
-app.get("/invoices", (req, res) => {
-  const limit = req.query.limit !== undefined ? Number(req.query.limit) : undefined;
-  const offset = req.query.offset !== undefined ? Number(req.query.offset) : undefined;
+/** Parses an optional query param that must be a plain non-negative integer ("12", not "1.5", "-3" or "1e2"). */
+function parseNonNegativeInt(value: unknown): number | undefined | null {
+  if (value === undefined) return undefined;
+  if (typeof value !== "string" || !/^\d+$/.test(value)) return null;
+  return Number(value);
+}
 
-  if (
-    (limit !== undefined && !Number.isFinite(limit)) ||
-    (offset !== undefined && !Number.isFinite(offset))
-  ) {
-    res.status(400).json({ error: "limit and offset must be numbers" });
+app.get("/invoices", (req, res) => {
+  const limit = parseNonNegativeInt(req.query.limit);
+  const offset = parseNonNegativeInt(req.query.offset);
+
+  if (limit === null || offset === null) {
+    res.status(400).json({ error: "limit and offset must be non-negative integers" });
     return;
   }
 
