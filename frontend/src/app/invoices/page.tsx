@@ -59,6 +59,11 @@ export default function InvoicesPage() {
   const [amount, setAmount] = useState("1000");
   const [advancePercent, setAdvancePercent] = useState("95");
   const [dueInDays, setDueInDays] = useState("30");
+  // #3: the contract's create_invoice already takes any Stellar asset
+  // contract address as `token` — this form just always sent NATIVE_TOKEN_ID.
+  // Default stays native XLM so existing behavior is unchanged; a payee who
+  // wants a different asset can now paste its contract address.
+  const [token, setToken] = useState(NATIVE_TOKEN_ID);
   const [creating, setCreating] = useState(false);
 
   const [viewId, setViewId] = useState("");
@@ -105,7 +110,7 @@ export default function InvoicesPage() {
       const unsignedXdr = await buildCreateInvoiceTx(
         wallet,
         debtor.trim(),
-        NATIVE_TOKEN_ID,
+        token.trim() || NATIVE_TOKEN_ID,
         xlmToStroops(amount),
         advanceBps,
         dueDate,
@@ -164,7 +169,9 @@ export default function InvoicesPage() {
                 </label>
                 <div className="grid grid-cols-2 gap-3">
                   <label className="text-sm">
-                    <span className="mb-1.5 block text-xs text-muted">Face value (XLM)</span>
+                    <span className="mb-1.5 block text-xs text-muted">
+                      Face value ({assetLabel(token.trim() || NATIVE_TOKEN_ID, NATIVE_TOKEN_ID)})
+                    </span>
                     <input
                       required
                       type="number"
@@ -189,6 +196,18 @@ export default function InvoicesPage() {
                     />
                   </label>
                 </div>
+                <label className="text-sm">
+                  <span className="mb-1.5 block text-xs text-muted">
+                    Asset (Stellar token contract address)
+                  </span>
+                  <input
+                    required
+                    placeholder="C… — defaults to native XLM"
+                    value={token}
+                    onChange={(e) => setToken(e.target.value)}
+                    className="w-full border border-border-strong bg-background px-3.5 py-2.5 font-mono text-sm focus:border-accent focus:outline-none"
+                  />
+                </label>
                 <label className="text-sm">
                   <span className="mb-1.5 block text-xs text-muted">Due in (days)</span>
                   <input
