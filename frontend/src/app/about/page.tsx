@@ -87,8 +87,8 @@ export default function AboutPage() {
                 between.
               </p>
               <p>
-                Invoices settle in native XLM today. Stablecoins and mainnet are the next two things
-                on the list — see{" "}
+                Invoices default to native XLM but can settle in any Stellar asset, stablecoins
+                included. Mainnet is next on the list — see{" "}
                 <Link
                   href="https://github.com/boluwacodes/runway"
                   target="_blank"

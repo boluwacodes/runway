@@ -136,8 +136,8 @@ export default function InvoicesPage() {
             )}
           </div>
           <p className="mt-2 max-w-lg text-sm text-muted">
-            Invoices run on Stellar testnet using native XLM. Connect a wallet when you&apos;re
-            ready to register, fund, or pay one.
+            Invoices run on Stellar testnet and default to native XLM, but can use any Stellar asset
+            contract. Connect a wallet when you&apos;re ready to register, fund, or pay one.
           </p>
 
           <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-2">
