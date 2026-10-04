@@ -2,11 +2,14 @@ import express from "express";
 import cors from "cors";
 import { getInvoiceRow, listInvoices, stats } from "./db";
 import { startIndexer, syncOnce } from "./indexer";
+import { createSyncGuard } from "./sync-guard";
 
 const PORT = Number(process.env.PORT ?? 3030);
 
 const app = express();
 app.use(cors());
+
+const syncAuthAndRateLimit = createSyncGuard({ apiKey: process.env.SYNC_API_KEY });
 
 app.get("/health", (_req, res) => {
   res.json({ ok: true });
@@ -31,7 +34,7 @@ app.get("/stats", (_req, res) => {
 
 // Manual trigger, mostly for local dev — the background loop already
 // covers normal operation on its own interval.
-app.post("/sync", (_req, res) => {
+app.post("/sync", syncAuthAndRateLimit, (_req, res) => {
   syncOnce()
     .then((result) => res.json(result))
     .catch((err) =>
