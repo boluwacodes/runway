@@ -41,13 +41,27 @@ function parseRow(row: BackendInvoiceRow): Invoice {
  * actual state for an action (fund/pay/cancel) is still read live from the
  * contract on the detail page — this only speeds up the browse list.
  */
+// #4: GET /invoices now returns a paginated { invoices, total, limit, offset }
+// envelope instead of a bare array. Requesting the max page size here keeps
+// this function's current "give me everything for the browse list" contract
+// — if a pool ever exceeds MAX_PAGE_SIZE invoices, this intentionally shows
+// only the most recent 200 rather than silently paging forever.
+interface BackendInvoicesResponse {
+  invoices: BackendInvoiceRow[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
 export async function fetchInvoicesFromBackend(): Promise<Invoice[] | null> {
   if (!BACKEND_URL) return null;
   try {
-    const res = await fetch(`${BACKEND_URL}/invoices`, { signal: AbortSignal.timeout(4_000) });
+    const res = await fetch(`${BACKEND_URL}/invoices?limit=200`, {
+      signal: AbortSignal.timeout(4_000),
+    });
     if (!res.ok) return null;
-    const rows = (await res.json()) as BackendInvoiceRow[];
-    return rows.map(parseRow);
+    const { invoices } = (await res.json()) as BackendInvoicesResponse;
+    return invoices.map(parseRow);
   } catch {
     return null;
   }
