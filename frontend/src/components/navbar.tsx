@@ -53,8 +53,15 @@ export function Navbar() {
         setAccountMenuOpen(false);
       }
     }
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setAccountMenuOpen(false);
+    }
     document.addEventListener("mousedown", onClick);
-    return () => document.removeEventListener("mousedown", onClick);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onClick);
+      document.removeEventListener("keydown", onKeyDown);
+    };
   }, [accountMenuOpen]);
 
   async function handleConnect() {
