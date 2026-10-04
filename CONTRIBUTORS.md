@@ -16,3 +16,4 @@ Thanks to everyone who has contributed to Runway.
 - [@richardtoms100](https://github.com/richardtoms100)
 - [@Smoothjane](https://github.com/Smoothjane)
 - [@oluwarantimini](https://github.com/oluwarantimini)
+- [@davidishere1](https://github.com/davidishere1)
