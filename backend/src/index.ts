@@ -1,12 +1,10 @@
 import express from "express";
 import cors from "cors";
 import { getInvoiceRow, listInvoices, stats } from "./db";
-import { startIndexer, syncOnce } from "./indexer";
+import { syncOnce } from "./indexer";
 import { createSyncGuard } from "./sync-guard";
 
-const PORT = Number(process.env.PORT ?? 3030);
-
-const app = express();
+export const app = express();
 app.use(cors());
 
 const syncAuthAndRateLimit = createSyncGuard({ apiKey: process.env.SYNC_API_KEY });
@@ -55,9 +53,4 @@ app.post("/sync", syncAuthAndRateLimit, (_req, res) => {
     .catch((err) =>
       res.status(500).json({ error: err instanceof Error ? err.message : String(err) }),
     );
-});
-
-app.listen(PORT, () => {
-  console.log(`[runway-backend] listening on :${PORT}`);
-  startIndexer();
 });
