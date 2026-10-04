@@ -36,17 +36,24 @@ npm run dev
 
 ## Before opening a PR
 
+These are the same steps CI runs (`.github/workflows/ci.yml`), in the same
+order:
+
 ```bash
-cd contracts && cargo test --workspace
+cd contracts
+cargo fmt --check
+cargo test --workspace
 
 cd ../backend
 npm run lint
+npm run format:check
 npm run typecheck
 npm run test
 npm run build
 
 cd ../frontend
 npm run lint
+npm run format:check
 npm run typecheck
 npm run test
 npm run build
