@@ -14,7 +14,8 @@ turned out to be much smaller than its nominal retention period).
   for every id from 1 to that total — directly from contract storage, not
   from events. No indexer downtime or event-log gap can make an invoice
   disappear from what this serves.
-- Runs that sync on a loop (every 8s by default) plus once on startup.
+- Runs that sync on a loop (every 8s by default — set `INDEXER_INTERVAL_MS`
+  to change it) plus once on startup.
 - The frontend still reads live, direct-from-chain state for anything
   that gates an action (can I fund this? can I pay this?) — the indexer
   only speeds up the list you browse before clicking into one.
