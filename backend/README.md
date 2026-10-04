@@ -36,8 +36,8 @@ addon to compile, no separate database server to run.
 
 | Route | Returns |
 |---|---|
-| `GET /invoices` | every indexed invoice, newest id first |
+| `GET /invoices?limit=&offset=` | `{ invoices, total, limit, offset }`, newest id first. `limit` defaults to 50, capped at 200. |
 | `GET /invoices/:id` | one invoice, or 404 if not indexed yet |
 | `GET /stats` | `{ total_invoices, total_financed, financed_count, open_for_funding }` |
-| `POST /sync` | triggers an immediate sync, mostly for local dev |
+| `POST /sync` | triggers an immediate sync, mostly for local dev. Requires an `x-api-key` header matching `SYNC_API_KEY` if that env var is set, and is rate-limited per IP — see `src/sync-guard.ts`. |
 | `GET /health` | `{ ok: true }` |
